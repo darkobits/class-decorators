@@ -1,0 +1,55 @@
+{
+  "name": "@darkobits/class-decorator",
+  "version": "0.1.0",
+  "description": "Decorate classes with delegation.",
+  "contributors": [
+    {
+      "name": "Joshua Martin",
+      "email": "joshua@frontlawn.net"
+    }
+  ],
+  "license": "WTFPL",
+  "main": "dist/class-decorator.js",
+  "scripts": {
+    "lint": "xo",
+    "test": "jest",
+    "test:watch": "npm t -- --watch",
+    "prebuild": "rimraf dist",
+    "build": "babel src --out-dir dist",
+    "build:watch": "watch \"npm run build\" ./src/",
+    "prepublish": "run-p lint test build",
+    "prebump": "npm run prepublish",
+    "bump": "standard-version"
+  },
+  "peerDependencies": {
+    "babel-plugin-transform-decorators-legacy": "1.x"
+  },
+  "devDependencies": {
+    "babel-cli": "6.x",
+    "babel-core": "6.x",
+    "babel-eslint": "8.x",
+    "babel-jest": "21.x",
+    "babel-plugin-transform-decorators-legacy": "1.x",
+    "babel-preset-env": "1.x",
+    "eslint": "4.x",
+    "husky": "0.14.x",
+    "jest": "21.x",
+    "npm-run-all": "4.x",
+    "rimraf": "2.x",
+    "standard-version": "4.x",
+    "watch": "1.x",
+    "xo": "0.18.x"
+  },
+  "xo": {
+    "parser": "babel-eslint",
+    "env": [
+      "node",
+      "jest"
+    ],
+    "space": true,
+    "rules": {
+      "no-new-func": "off",
+      "prefer-arrow-callback": "off"
+    }
+  }
+}
