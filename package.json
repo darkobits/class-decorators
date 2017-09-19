@@ -1,6 +1,6 @@
 {
   "name": "@darkobits/class-decorator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Decorate classes with delegation.",
   "contributors": [
     {
