@@ -9,6 +9,9 @@
     }
   ],
   "license": "WTFPL",
+  "files": [
+    "dist"
+  ],
   "main": "dist/class-decorator.js",
   "scripts": {
     "lint": "xo",
