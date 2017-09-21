@@ -2,10 +2,7 @@
 
 # class-decorator
 
-This package attempts to improve upon the base [decorator proposal](https://ponyfoo.com/articles/javascript-decorators-proposal), specifically when decorating classes, by:
-
-- Preserving the constructor's `name` and not adding to the prototype chain.
-- Allowing decorators to manipulate the newly created class instance.
+This package attempts to improve the way classes are decorated (see: [decorator proposal](https://ponyfoo.com/articles/javascript-decorators-proposal)) by not polluting the prototype chain, thereby encouraging _composition over inheritance_.
 
 ## Installation
 
@@ -33,48 +30,127 @@ Then, update your `.babelrc` file:
 
 ## Usage
 
-#### `createClassDecorator(function: delegate): function`
+#### `default(function: (class: decoratedClass): class): function`
 
-`createClassDecorator` accepts a delegate function and returns a decorator that may be applied to a class or constructor function. The delegate function will be invoked with the following parameters:
+This package's default export is a function that accepts a function that will be passed the original class (re: constructor function) being decorated and should return a "decorator class". The decorator class returned by this function will be used to decorate the target class as follows:
 
-|Name|Type|Description|
-|---|---|---|
-|`ctor`|`function`|Original class constructor, already bound to the newly created class instance.|
-|`args`|`arglist`|Arguments that were passed to the constructor.|
+1. All static properties of the decorator class will be applied to the target.
+2. All _own_ prototype methods of the decorator class will be applied to the target's prototype.
+3. An instance of the decorator class will be created, and its properties will be applied to the target instance.
 
-Additionally, the delegate function itself will be bound to the newly created class instance. For this reason, arrow functions should be avoided if modifying the instnace object is desired.
-
-The delegate function is responsible for invoking the original constructor (or not) and for forwarding original constructor arguments (or not).
+All of this is accomplished _without_ adding additional degrees of inheritance/delegation to the prototype chain.
 
 **Example:**
 
 In this example, we will create a higher-order decorator that accepts a list of superpowers to apply to class instances.
 
+First, we will look at how this is done using the typical approach, then how to accomplish it using this package.
+
 ```js
-import createClassDecorator from '@darkobits/class-decorator';
 
 function addSuperpowers (...powers) {
-  return createClassDecorator(function (ctor, ...args) {
-    powers.forEach(power => {
-      this[power] = true;
-    });
+  return function (ctor) {
+    return class AddSuperPowers extends ctor {
+      constructor(...args) {
+        super(...args);
 
-    return ctor(...args);
+        powers.forEach(power => {
+          this[power] = true;
+        });
+      }
+
+      hasSuperpower(power) {
+        return this[power];
+      }
+    }
+  };
+}
+
+@addSuperpowers('strength', 'speed', 'flight')
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+
+  getName() {
+    return this.name;
+  }
+}
+
+const bob = new Person('Bob');
+
+bob.strength; //=> true
+bob.speed; //=> true
+bob.flight; //=> true
+```
+
+This is great, but if we examine the prototype chain of the `bob` instance, it will look something like this:
+
+```
+[this]
+- name: 'Bob'
+- strength: true
+- speed: true
+- flight: true
+- [[Prototype]] => [AddSuperpowers]
+                   - hasSuperpower()
+                   - [[Prototype]] => [Person]
+                                      - getName()
+                                      - [[Prototype]] => Object
+```
+
+If we used 5 decorators on the `Person` class, we would find 5 degrees of inheritance added to each instance of `Person`. Decorators should faciliate _composition_, not exacerbate existing issues with inheritance. You might also notice that our decorator's prototype inherits from our original class, meaning that consumers of our decorator will not be able to shadow properties or methods applied by the decorator. This is bad behavior; the decorated class should always retain the ability to shadow properties set by ancestors _and_ decorators.
+
+Let's see how with a few modifications we can improve this situation:
+
+```js
+import classDecorator from '@darkobits/class-decorator';
+
+function addSuperpowers (...powers) {
+  return classDecorator(() => {
+    return class AddSuperPowers {
+      constructor() {
+        powers.forEach(power => {
+          this[power] = true;
+        });
+      }
+
+      hasSuperpower(power) {
+        return this[power];
+      }
+    }
   });
 }
 
 @addSuperpowers('strength', 'speed', 'flight')
 class Person {
+  constructor(name) {
+    this.name = name;
+  }
 
+  getName() {
+    return this.name;
+  }
 }
 
-const bob = new Person();
-
-bob.strength; //=> true
-bob.speed; //=> true
-bob.flight; //=> true
-bob.constructor.name; //=> 'Person'
+const bob = new Person('Bob');
 ```
+
+If we looked at the protoype chain for this instance of `bob`, we would see:
+
+```
+[this]
+- name: 'Bob'
+- strength: true
+- speed: true
+- flight: true
+- [[Prototype]] => [Person]
+                   - getName()
+                   - hasSuperpower()
+                   - [[Prototype]] => Object
+```
+
+Class decorators that modify the original class rather than serving as syntactic sugar for more inheritance `===` Huzzah!
 
 ## &nbsp;
 <p align="center">

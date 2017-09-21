@@ -1,91 +1,133 @@
-import createClassDecorator from './class-decorator';
+import classDecorator from './class-decorator';
 
-function decorator(props) { // eslint-disable-line no-unused-vars
-  return createClassDecorator(function (ctor, ...args) { // eslint-disable-line no-unused-vars
-    Object.assign(this, props);
-    return ctor(...args);
-  });
+const decorator = classDecorator(() => { // eslint-disable-line no-unused-vars
+  return class TestDecorator {
+    static staticDecoratorProp = true; // eslint-disable-line no-undef
+    static staticDecoratorMethod() { }
+
+    constructor() {
+      this.decoratorProp = true;
+    }
+
+    decoratorMethod() { }
+  };
+});
+
+@decorator
+class ParentClass {
+  static staticParentProp = true; // eslint-disable-line no-undef
+  static staticParentMethod() { }
+  parentProp = true; // eslint-disable-line no-undef
+  parentMethod() { }
+}
+
+@decorator
+class ChildClass extends ParentClass {
+  static staticChildProp = true; // eslint-disable-line no-undef
+  static staticChildMethod() { }
+  childProp = true; // eslint-disable-line no-undef
+  childMethod() { }
 }
 
 describe('Class Decorator', () => {
-  describe('Usage with non-classes', () => {
+  describe('decorating static properties', () => {
+    const COMMON_PROPS = ['staticDecoratorMethod', 'staticDecoratorProp'];
+
+    COMMON_PROPS.concat(['staticParentMethod', 'staticParentProp']).forEach(prop => {
+      it(`should define ${prop} on ParentClass`, () => {
+        expect(ParentClass[prop]).toBeTruthy();
+      });
+    });
+
+    COMMON_PROPS.concat(['staticChildMethod', 'staticChildProp']).forEach(prop => {
+      it(`should define ${prop} on ChildClass`, () => {
+        expect(ChildClass[prop]).toBeTruthy();
+      });
+    });
+  });
+
+  describe('decorating prototypes', () => {
+    const PARENT_METHODS = ['parentMethod', 'decoratorMethod'];
+
+    PARENT_METHODS.forEach(prop => {
+      it(`should have ${prop} on the ParentClass prototype`, () => {
+        const parent = new ParentClass();
+        expect(parent[prop]).toBeTruthy();
+      });
+    });
+
+    PARENT_METHODS.concat(['childMethod']).forEach(prop => {
+      it(`should have ${prop} on the ChildClass prototype`, () => {
+        const child = new ChildClass();
+        expect(child[prop]).toBeTruthy();
+      });
+    });
+  });
+
+  describe('decorating instances', () => {
+    const PARENT_PROPS = ['parentProp', 'decoratorProp'];
+
+    PARENT_PROPS.forEach(prop => {
+      it(`should have ${prop} on the ParentClass prototype`, () => {
+        const parent = new ParentClass();
+        expect(parent[prop]).toBeTruthy();
+      });
+    });
+
+    PARENT_PROPS.concat(['childProp']).forEach(prop => {
+      it(`should have ${prop} on the ChildClass prototype`, () => {
+        const child = new ChildClass();
+        expect(child[prop]).toBeTruthy();
+      });
+    });
+  });
+
+  describe('usage with non-classes', () => {
     it('should throw an error when used on class methods', () => {
       expect(() => {
-        class Person { // eslint-disable-line no-unused-vars
+        class Foo { // eslint-disable-line no-unused-vars
           @decorator()
           classMethod() {
 
           }
         }
-      }).toThrow('Must be used on a class or constructor function');
+      }).toThrow('Expected constructor function');
     });
 
     it('should throw an error when used on object literal methods', () => {
       expect(() => {
         const myObj = { // eslint-disable-line no-unused-vars
           @decorator()
-          objMethod() {
-
-          }
+          objMethod() { }
         };
-      }).toThrow('Must be used on a class or constructor function');
+      }).toThrow('Expected constructor function');
     });
   });
 
-  describe('preserving class names', () => {
-    it('should preserve the original class name', () => {
-      @decorator()
-      class Person { }
+  describe('returning a non-class', () => {
+    it('should throw an error when a non-class / function is returned', () => {
+      expect(() => {
+        const badDecorator = classDecorator(() => { // eslint-disable-line no-unused-vars
+          return false;
+        });
 
-      const myPerson = new Person();
-      expect(myPerson.constructor.name).toEqual(Person.name);
+        @badDecorator
+        class Foo { } // eslint-disable-line no-unused-vars
+      }).toThrow('Expected decorator to be a class or function');
     });
   });
 
   describe('instanceof', () => {
     it('should pass instanceof checks', () => {
-      function decorator(props) { // eslint-disable-line no-unused-vars
-        return createClassDecorator(function (ctor, ...args) { // eslint-disable-line no-unused-vars
-          Object.assign(this, props);
-          return ctor(...args);
-        });
-      }
+      const parent = new ParentClass();
+      const child = new ChildClass();
 
-      @decorator()
-      class Foo { }
-
-      const myPerson = new Foo();
-      expect(myPerson instanceof Foo).toBe(true);
+      expect(parent instanceof ParentClass).toBe(true);
+      expect(child instanceof ParentClass).toBe(true);
+      expect(child instanceof ChildClass).toBe(true);
     });
   });
 
-  describe('decorating instances', () => {
-    it('should be able to modify the newly-created instance', () => {
-      const property = 'foo';
-
-      @decorator({
-        [property]: 'bar'
-      })
-      class Foo { }
-
-      const myFoo = new Foo();
-
-      expect(myFoo[property]).toBeTruthy();
-    });
-  });
-
-  describe('binding the original constructor', () => {
-    it('should bind the original constructor to the new instance', () => {
-      @decorator()
-      class Foo {
-        constructor() {
-          this.foo = true;
-        }
-      }
-
-      const myFoo = new Foo();
-
-      expect(myFoo.foo).toBe(true);
-    });
-  });
+  // Add tests to ensure shadowing works as expected. Ex: decorators should
+  // shadow ancestors, decorated classes should shadow decorators.
 });

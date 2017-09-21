@@ -32,6 +32,7 @@
     "babel-core": "6.x",
     "babel-eslint": "8.x",
     "babel-jest": "21.x",
+    "babel-plugin-transform-class-properties": "6.x",
     "babel-plugin-transform-decorators-legacy": "1.x",
     "babel-preset-env": "1.x",
     "eslint": "4.x",
@@ -49,10 +50,6 @@
       "node",
       "jest"
     ],
-    "space": true,
-    "rules": {
-      "no-new-func": "off",
-      "prefer-arrow-callback": "off"
-    }
+    "space": true
   }
 }
