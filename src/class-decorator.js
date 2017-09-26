@@ -1,3 +1,5 @@
+import isPlainObject from 'is-plain-object';
+
 /**
  * @private
  *
@@ -20,12 +22,16 @@ function copyOwnProperties(dest, src, predicate) {
 
 /**
  * Accepts a function that, when invoked, will be passed the class constructor
- * being decorated and should return a class. The returned class will be used
+ * being decorated and should return an object. The returned object will be used
  * to decorate the original class thusly:
  *
- * - All static properties will be copied to the decorated class.
- * - All prototype methods will be copied to the decorated class' prototype.
- * - Any instance properties it creates will be copied to the decorated class.
+ * - All properties/methods from its 'static' key will be copied to the
+ *   decorated class as static properties/methods.
+ * - All properties/methods from its 'prototype' key will be copied to the
+ *   decorated class' prototype.
+ * - When a new instance of the decorated class is constructed, its
+ *   'onConstruct' method will be invoked with the new instance as its context,
+ *   and will be passed any arguments provided to the original constructor.
  *
  * @param  {function} getDecorator
  * @return {function}
@@ -38,18 +44,23 @@ export default function classDecoratorFactory(getDecorator) {
 
     const Decorator = getDecorator(Ctor);
 
-    if (typeof Decorator !== 'function') {
-      throw new TypeError(`[ClassDecorator] Expected decorator to be a class or function, got "${typeof Decorator}".`);
+    if (!isPlainObject(Decorator)) {
+      throw new TypeError(`[ClassDecorator] Expected decorator to be of type "Object", got "${typeof Decorator}".`);
     }
 
     function ClassDecorator(...args) {
-      // [1] Instantiate the decorator class and copy any instance properties
-      // it creates to the local context.
-      copyOwnProperties(this, new Decorator(...args));
+      // [1] Instantiate the decorated class using our context. We are allowed
+      // to do this because we have set our prototype to the original
+      // constructor's prototype.
+      Ctor.apply(this, args);
 
-      // [2] Instantiate the decorated class and copy and instance properties
-      // it creates to the local context.
-      copyOwnProperties(this, new Ctor(...args));
+      // [2] Invoke the decorator's "constructor" method using our context and
+      // forwarding any arguments we received.
+      if (Decorator.onConstruct && typeof Decorator.onConstruct === 'function') {
+        Decorator.onConstruct.apply(this, args);
+      }
+
+      return this;
     }
 
     // Configure the delegate's prototype and constructor.
@@ -62,22 +73,16 @@ export default function classDecoratorFactory(getDecorator) {
 
     // [3] Apply prototype methods from decorator to decorated, but only if the
     // decorated class has not already defined them.
-    copyOwnProperties(
-      Ctor.prototype,
-      Decorator.prototype,
-      copyPredicate,
-      'Decorator Prototype => Decorated Prototype'
-    );
+    if (Decorator.prototype && isPlainObject(Decorator.prototype)) {
+      copyOwnProperties(Ctor.prototype, Decorator.prototype, copyPredicate);
+    }
 
     // [4] Copy static properties / methods to the decorated constructor. This
     // must be done in order for them to be visible when traversing the
     // prototype chain.
-    copyOwnProperties(
-      Ctor,
-      Decorator,
-      copyPredicate,
-      'Decorator Statics => Decorated Statics'
-    );
+    if (Decorator.static && isPlainObject(Decorator.static)) {
+      copyOwnProperties(Ctor, Decorator.static, copyPredicate);
+    }
 
     // [5] Set up ClassDecorator to delegate to the decorated constructor,
     // thereby allowing consumers to access any static properties it or the

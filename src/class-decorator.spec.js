@@ -1,15 +1,19 @@
 import classDecorator from './class-decorator';
 
 const decorator = classDecorator(() => { // eslint-disable-line no-unused-vars
-  return class TestDecorator {
-    static staticDecoratorProp = true; // eslint-disable-line no-undef
-    static staticDecoratorMethod() { }
-
-    constructor() {
+  return {
+    onConstruct() {
       this.decoratorProp = true;
-    }
+    },
+    prototype: {
+      decoratorMethod() {
 
-    decoratorMethod() { }
+      }
+    },
+    static: {
+      staticDecoratorProp: true,
+      staticDecoratorMethod() { }
+    }
   };
 });
 
@@ -104,8 +108,8 @@ describe('Class Decorator', () => {
     });
   });
 
-  describe('returning a non-class', () => {
-    it('should throw an error when a non-class / function is returned', () => {
+  describe('returning a non-object', () => {
+    it('should throw an error when a non-object is returned', () => {
       expect(() => {
         const badDecorator = classDecorator(() => { // eslint-disable-line no-unused-vars
           return false;
@@ -113,7 +117,7 @@ describe('Class Decorator', () => {
 
         @badDecorator
         class Foo { } // eslint-disable-line no-unused-vars
-      }).toThrow('Expected decorator to be a class or function');
+      }).toThrow('Expected decorator to be of type "Object"');
     });
   });
 

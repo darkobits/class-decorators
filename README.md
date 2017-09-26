@@ -2,7 +2,7 @@
 
 # class-decorator
 
-This package attempts to improve the way classes are decorated (see: [decorator proposal](https://ponyfoo.com/articles/javascript-decorators-proposal)) by not polluting the prototype chain, thereby encouraging _composition over inheritance_.
+This package attempts to improve the way classes are decorated (see: [decorator proposal](https://ponyfoo.com/articles/javascript-decorators-proposal)) by not polluting the prototype chain, encouraging _composition over inheritance_.
 
 ## Installation
 
@@ -30,13 +30,13 @@ Then, update your `.babelrc` file:
 
 ## Usage
 
-#### `default(function: (class: decoratedClass): class): function`
+#### `default(function: (class: decoratedClass): object): function`
 
-This package's default export is a function that accepts a function that will be passed the original class (re: constructor function) being decorated and should return a "decorator class". The decorator class returned by this function will be used to decorate the target class as follows:
+This package's default export is a function that accepts a function that will be passed the original class (re: constructor function) being decorated and should return a decorator descriptor object. The decorator descriptor will be used to decorate the original class as follows:
 
-1. All static properties of the decorator class will be applied to the target.
-2. All _own_ prototype methods of the decorator class will be applied to the target's prototype.
-3. An instance of the decorator class will be created, and its properties will be applied to the target instance.
+1. All properties from its `static` key will be applied to the target class.
+2. All properties from its `prototype` key will be applied to the target's prototype.
+3. When a new instance is created, its `onConstruct` method will be invoked, provided any arguments passed to the original constructor, and bound to the new instance. (NB: Avoid defining `onConstruct` using an arrow function).
 
 All of this is accomplished _without_ adding additional degrees of inheritance/delegation to the prototype chain.
 
@@ -107,19 +107,18 @@ Let's see how with a few modifications we can improve this situation:
 import classDecorator from '@darkobits/class-decorator';
 
 function addSuperpowers (...powers) {
-  return classDecorator(() => {
-    return class AddSuperPowers {
-      constructor() {
-        powers.forEach(power => {
-          this[power] = true;
-        });
-      }
-
-      hasSuperpower(power) {
+  return classDecorator(() => ({
+    onConstruct () {
+      powers.forEach(power => {
+        this[power] = true;
+      });
+    },
+    prototype: {
+      hasSuperpower (power) {
         return this[power];
       }
     }
-  });
+  }));
 }
 
 @addSuperpowers('strength', 'speed', 'flight')
@@ -150,7 +149,7 @@ If we looked at the protoype chain for this instance of `bob`, we would see:
                    - [[Prototype]] => Object
 ```
 
-Class decorators that modify the original class rather than serving as syntactic sugar for more inheritance `===` Huzzah!
+Class decorators that modify the original class rather than serving as syntactic sugar for more inheritance: :heart_eyes:
 
 ## &nbsp;
 <p align="center">

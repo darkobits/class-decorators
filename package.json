@@ -27,6 +27,9 @@
   "peerDependencies": {
     "babel-plugin-transform-decorators-legacy": "1.x"
   },
+  "dependencies": {
+    "is-plain-object": "2.x"
+  },
   "devDependencies": {
     "babel-cli": "6.x",
     "babel-core": "6.x",
