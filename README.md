@@ -30,9 +30,9 @@ Then, update your `.babelrc` file:
 
 ## Usage
 
-#### `default(function: (class: decoratedClass): object): function`
+#### `default(descriptorFn: (DecoratedClass: function) => object): function`
 
-This package's default export is a function that accepts a function that will be passed the original class (re: constructor function) being decorated and should return a decorator descriptor object. The decorator descriptor will be used to decorate the original class as follows:
+This package's default export is a function that accepts a function that will be passed the original class (re: constructor function) being decorated and should return a decorator descriptor object. The decorator descriptor object will be used to decorate the original class as follows:
 
 1. All properties from its `static` key will be applied to the target class.
 2. All properties from its `prototype` key will be applied to the target's prototype.
@@ -87,16 +87,17 @@ bob.flight; //=> true
 This is great, but if we examine the prototype chain of the `bob` instance, it will look something like this:
 
 ```
-[this]
-- name: 'Bob'
-- strength: true
-- speed: true
-- flight: true
-- [[Prototype]] => [AddSuperpowers]
-                   - hasSuperpower()
-                   - [[Prototype]] => [Person]
-                                      - getName()
-                                      - [[Prototype]] => Object
+bob: {
+  name: 'Bob'
+  strength: true
+  speed: true
+  flight: true
+  [[Prototype]] => AddSuperpowers: {
+}                    hasSuperpower()
+                     [[Prototype]] => Person: {
+                   }                    getName()
+                                        [[Prototype]] => Object
+                                      }
 ```
 
 If we used 5 decorators on the `Person` class, we would find 5 degrees of inheritance added to each instance of `Person`. Decorators should faciliate _composition_, not exacerbate existing issues with inheritance. You might also notice that our decorator's prototype inherits from our original class, meaning that consumers of our decorator will not be able to shadow properties or methods applied by the decorator. This is bad behavior; the decorated class should always retain the ability to shadow properties set by ancestors _and_ decorators.
@@ -138,15 +139,16 @@ const bob = new Person('Bob');
 If we looked at the protoype chain for this instance of `bob`, we would see:
 
 ```
-[this]
-- name: 'Bob'
-- strength: true
-- speed: true
-- flight: true
-- [[Prototype]] => [Person]
-                   - getName()
-                   - hasSuperpower()
-                   - [[Prototype]] => Object
+bob: {
+  name: 'Bob'
+  strength: true
+  speed: true
+  flight: true
+  [[Prototype]] => Person: {
+}                    getName()
+                     hasSuperpower()
+                     [[Prototype]] => Object
+                   }
 ```
 
 Class decorators that modify the original class rather than serving as syntactic sugar for more inheritance: :heart_eyes:
