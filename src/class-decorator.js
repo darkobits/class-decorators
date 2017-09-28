@@ -33,39 +33,45 @@ function copyOwnProperties(dest, src, predicate) {
  *   'onConstruct' method will be invoked with the new instance as its context,
  *   and will be passed any arguments provided to the original constructor.
  *
- * @param  {function} getDecorator
+ * @param  {function} descriptorFn
  * @return {function}
  */
-export default function classDecoratorFactory(getDecorator) {
-  return function (Ctor, ...extraArgs) {
-    if (typeof Ctor !== 'function' || extraArgs.length > 0) {
-      throw new TypeError(`[ClassDecorator] Expected constructor function, got ${typeof Ctor}`);
+export default function classDecoratorFactory(descriptorFn) {
+  return function (DecoratedClass, ...extraArgs) {
+    if (typeof DecoratedClass !== 'function' || extraArgs.length > 0) {
+      throw new TypeError(`[ClassDecorator] Expected constructor function, got ${typeof DecoratedClass}`);
     }
 
-    const Decorator = getDecorator(Ctor);
+    const decoratorDescriptor = descriptorFn(DecoratedClass);
 
-    if (!isPlainObject(Decorator)) {
-      throw new TypeError(`[ClassDecorator] Expected decorator to be of type "Object", got "${typeof Decorator}".`);
+    if (!isPlainObject(decoratorDescriptor)) {
+      throw new TypeError(`[ClassDecorator] Expected decorator to be of type "Object", got "${typeof decoratorDescriptor}".`);
     }
+
+    const {
+      onConstruct,
+      prototype,
+      static: staticProps
+    } = decoratorDescriptor;
 
     function ClassDecorator(...args) {
       // [1] Instantiate the decorated class using our context. We are allowed
       // to do this because we have set our prototype to the original
       // constructor's prototype.
-      Ctor.apply(this, args);
+      DecoratedClass.apply(this, args);
 
-      // [2] Invoke the decorator's "constructor" method using our context and
+      // [2] Invoke the decorator's onConstruct method using our context and
       // forwarding any arguments we received.
-      if (Decorator.onConstruct && typeof Decorator.onConstruct === 'function') {
-        Decorator.onConstruct.apply(this, args);
+      if (onConstruct && typeof onConstruct === 'function') {
+        decoratorDescriptor.onConstruct.apply(this, args);
       }
 
       return this;
     }
 
     // Configure the delegate's prototype and constructor.
-    ClassDecorator.prototype = Ctor.prototype;
-    ClassDecorator.prototype.constructor = Ctor;
+    ClassDecorator.prototype = DecoratedClass.prototype;
+    ClassDecorator.prototype.constructor = DecoratedClass;
 
     // By default, we don't want to copy internal read-only properties,
     // constructors, or prototype references.
@@ -73,21 +79,21 @@ export default function classDecoratorFactory(getDecorator) {
 
     // [3] Apply prototype methods from decorator to decorated, but only if the
     // decorated class has not already defined them.
-    if (Decorator.prototype && isPlainObject(Decorator.prototype)) {
-      copyOwnProperties(Ctor.prototype, Decorator.prototype, copyPredicate);
+    if (prototype && isPlainObject(prototype)) {
+      copyOwnProperties(DecoratedClass.prototype, prototype, copyPredicate);
     }
 
     // [4] Copy static properties / methods to the decorated constructor. This
     // must be done in order for them to be visible when traversing the
     // prototype chain.
-    if (Decorator.static && isPlainObject(Decorator.static)) {
-      copyOwnProperties(Ctor, Decorator.static, copyPredicate);
+    if (staticProps && isPlainObject(staticProps)) {
+      copyOwnProperties(DecoratedClass, staticProps, copyPredicate);
     }
 
     // [5] Set up ClassDecorator to delegate to the decorated constructor,
     // thereby allowing consumers to access any static properties it or the
     // decorating class defined.
-    Object.setPrototypeOf(ClassDecorator, Ctor);
+    Object.setPrototypeOf(ClassDecorator, DecoratedClass);
 
     return ClassDecorator;
   };
