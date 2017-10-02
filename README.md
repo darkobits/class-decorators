@@ -30,9 +30,9 @@ Then, update your `.babelrc` file:
 
 ## Usage
 
-#### `default(descriptorFn: (DecoratedClass: function) => object): function`
+#### `default(descriptorOrDescriptorFn: object | (DecoratedClass: function) => object) : function`
 
-This package's default export is a function that accepts a function that will be passed the original class (re: constructor function) being decorated and should return a decorator descriptor object. The decorator descriptor object will be used to decorate the original class as follows:
+This package's default export is a function that accepts a decorator descriptor object or a function that will be passed the class being decorated and should return a decorator descriptor object. The decorator descriptor object will be used decorate the original class thusly:
 
 1. All properties from its `static` key will be applied to the target class.
 2. All properties from its `prototype` key will be applied to the target's prototype.
@@ -108,7 +108,7 @@ Let's see how with a few modifications we can improve this situation:
 import classDecorator from '@darkobits/class-decorator';
 
 function addSuperpowers (...powers) {
-  return classDecorator(() => ({
+  return classDecorator({
     onConstruct () {
       powers.forEach(power => {
         this[power] = true;
@@ -119,7 +119,7 @@ function addSuperpowers (...powers) {
         return this[power];
       }
     }
-  }));
+  });
 }
 
 @addSuperpowers('strength', 'speed', 'flight')

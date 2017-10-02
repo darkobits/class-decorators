@@ -21,9 +21,9 @@ function copyOwnProperties(dest, src, predicate) {
 }
 
 /**
- * Accepts a function that, when invoked, will be passed the class constructor
- * being decorated and should return an object. The returned object will be used
- * to decorate the original class thusly:
+ * Accepts a decorator descriptor object or a function that will be passed the
+ * class being decorated and should return a decorator descriptor object. The
+ * decorator descriptor object will be used decorate the original class thusly:
  *
  * - All properties/methods from its 'static' key will be copied to the
  *   decorated class as static properties/methods.
@@ -33,16 +33,22 @@ function copyOwnProperties(dest, src, predicate) {
  *   'onConstruct' method will be invoked with the new instance as its context,
  *   and will be passed any arguments provided to the original constructor.
  *
- * @param  {function} descriptorFn
+ * @param  {function|object} descriptorOrDescriptorFn
  * @return {function}
  */
-export default function classDecoratorFactory(descriptorFn) {
+export default function classDecoratorFactory(descriptorOrDescriptorFn) {
   return function (DecoratedClass, ...extraArgs) {
+    let decoratorDescriptor;
+
     if (typeof DecoratedClass !== 'function' || extraArgs.length > 0) {
       throw new TypeError(`[ClassDecorator] Expected constructor function, got ${typeof DecoratedClass}`);
     }
 
-    const decoratorDescriptor = descriptorFn(DecoratedClass);
+    if (typeof descriptorOrDescriptorFn === 'function') {
+      decoratorDescriptor = descriptorOrDescriptorFn(DecoratedClass);
+    } else {
+      decoratorDescriptor = descriptorOrDescriptorFn;
+    }
 
     if (!isPlainObject(decoratorDescriptor)) {
       throw new TypeError(`[ClassDecorator] Expected decorator to be of type "Object", got "${typeof decoratorDescriptor}".`);
@@ -68,6 +74,10 @@ export default function classDecoratorFactory(descriptorFn) {
 
       return this;
     }
+
+    Object.defineProperty(ClassDecorator, 'name', {
+      value: DecoratedClass.name
+    });
 
     // Configure the delegate's prototype and constructor.
     ClassDecorator.prototype = DecoratedClass.prototype;

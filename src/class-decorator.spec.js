@@ -1,21 +1,17 @@
 import classDecorator from './class-decorator';
 
-const decorator = classDecorator(() => { // eslint-disable-line no-unused-vars
-  return {
-    onConstruct() {
-      this.decoratorProp = true;
-    },
-    prototype: {
-      decoratorMethod() {
-
-      }
-    },
-    static: {
-      staticDecoratorProp: true,
-      staticDecoratorMethod() { }
-    }
-  };
-});
+const decorator = classDecorator(DecoratedClass => ({ // eslint-disable-line no-unused-vars
+  onConstruct() {
+    this.decoratorProp = true;
+  },
+  prototype: {
+    decoratorMethod() { }
+  },
+  static: {
+    staticDecoratorProp: true,
+    staticDecoratorMethod() { }
+  }
+}));
 
 @decorator
 class ParentClass {
@@ -108,6 +104,24 @@ describe('Class Decorator', () => {
     });
   });
 
+  describe('providing an object', () => {
+    const prop = 'foo';
+    const value = 'bar';
+
+    const decoratorObj = classDecorator({ // eslint-disable-line no-unused-vars
+      onConstruct() {
+        this[prop] = value;
+      }
+    });
+
+    @decoratorObj
+    class DecoratedClass { }
+
+    it('should correctly decorate the class', () => {
+      expect(new DecoratedClass()[prop]).toEqual(value);
+    });
+  });
+
   describe('returning a non-object', () => {
     it('should throw an error when a non-object is returned', () => {
       expect(() => {
@@ -131,7 +145,4 @@ describe('Class Decorator', () => {
       expect(child instanceof ChildClass).toBe(true);
     });
   });
-
-  // Add tests to ensure shadowing works as expected. Ex: decorators should
-  // shadow ancestors, decorated classes should shadow decorators.
 });
