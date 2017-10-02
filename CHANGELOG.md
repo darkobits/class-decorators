@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/darkobits/class-decorator/compare/v3.0.1...v3.1.0) (2017-10-02)
+
+
+### Features
+
+* Allow decorator descriptor object to be passed directly to classDecorator. ([468ce60](https://github.com/darkobits/class-decorator/commit/468ce60))
+
+
+
 <a name="3.0.1"></a>
 ## [3.0.1](https://github.com/darkobits/class-decorator/compare/v3.0.0...v3.0.1) (2017-09-28)
 
