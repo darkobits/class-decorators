@@ -1,23 +1,16 @@
-[![][travis-img]][travis-url] [![][npm-img]][npm-url] [![][codacy-img]][codacy-url] [![][xo-img]][xo-url] [![][cc-img]][cc-url]
+![class-decorator](https://user-images.githubusercontent.com/441546/36626828-a3f00872-18ee-11e8-8a02-1200e3961d9d.png)
 
-# class-decorator
+[![][npm-img]][npm-url] [![][travis-img]][travis-url] [![][codacy-img]][codacy-url] [![][cc-img]][cc-url] [![][xo-img]][xo-url]
 
 This package attempts to improve the way classes are decorated (see: [decorator proposal](https://ponyfoo.com/articles/javascript-decorators-proposal)) by not polluting the prototype chain, encouraging _composition over inheritance_.
 
-## Installation
+## Install
 
 This package requires `babel-plugin-transform-decorators-legacy`.
 
 ```bash
-$ yarn add -D babel-plugin-transform-decorators-legacy
-$ yarn add @darkobits/class-decorator
-```
-
-or
-
-```bash
-$ npm install --save-dev babel-plugin-transform-decorators-legacy
-$ npm install --save @darkobits/class-decorator
+$ npm i -D babel-plugin-transform-decorators-legacy
+$ npm i @darkobits/class-decorator
 ```
 
 Then, update your `.babelrc` file:
@@ -28,7 +21,7 @@ Then, update your `.babelrc` file:
 }
 ```
 
-## Usage
+## Use
 
 #### `default(descriptorOrDescriptorFn: object | (DecoratedClass: function) => object) : function`
 
