@@ -1,18 +1,17 @@
 language: node_js
-node_js: 6
+node_js: 8
 
 install:
-  - yarn
+  - npm install
 
 script:
-  - yarn test -- --coverage
-  - yarn build
+  - npm test -- --coverage
+  - npm run build
 
 after_success:
-  - yarn add codacy-coverage
+  - npm install codacy-coverage
   - $(npm bin)/codacy-coverage -v < ./coverage/lcov.info
 
 cache:
-  yarn: true
   directories:
     - node_modules

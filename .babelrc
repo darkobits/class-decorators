@@ -1,14 +1,30 @@
 {
   "presets": [
-    ["env", {
+    ["@babel/env", {
       "targets": {
         "browsers": ["ie >= 11"],
-        "node": "6.10.0"
+        "node": "8.0.0"
       }
-    }]
+    }],
+    "@babel/preset-stage-3",
+    "@babel/typescript"
   ],
   "plugins": [
-    "transform-class-properties",
-    "transform-decorators-legacy"
-  ]
+    ["@babel/plugin-proposal-decorators", {
+      "legacy": true
+    }],
+    "@babel/plugin-proposal-class-properties",
+    ["module-resolver", {
+      "cwd": "babelrc",
+      "root": ["./src"],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".json"
+      ]
+    }]
+  ],
+  "comments": false
 }
