@@ -6,10 +6,10 @@ This package attempts to improve the way classes are decorated (see: [decorator 
 
 ## Install
 
-This package requires `babel-plugin-transform-decorators-legacy`.
+This package requires `@babel/plugin-proposal-decorators`.
 
 ```bash
-$ npm i -D babel-plugin-transform-decorators-legacy
+$ npm i -D @babel/plugin-proposal-decorators
 $ npm i @darkobits/class-decorator
 ```
 
@@ -17,21 +17,29 @@ Then, update your `.babelrc` file:
 
 ```
 {
-  "plugins": ["transform-decorators-legacy"]
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", {
+      "legacy": true
+    }]
+  ]
 }
 ```
 
 ## Use
 
-#### `default(descriptorOrDescriptorFn: object | (DecoratedClass: function) => object) : function`
+### `ClassDecorator`
 
-This package's default export is a function that accepts a decorator descriptor object or a function that will be passed the class being decorated and should return a decorator descriptor object. The decorator descriptor object will be used decorate the original class thusly:
+This package's default export is a function that accepts a decorator implementation function and returns a decorator that may be applied to a class. The decorator implementation function is invoked with the target class. If the decorator implementation returns
+a function, that function will be used as a proxy constructor for the decorated class. The proxy constructor will be passed an object with the following shape:
 
-1. All properties from its `static` key will be applied to the target class.
-2. All properties from its `prototype` key will be applied to the target's prototype.
-3. When a new instance is created, its `onConstruct` method will be invoked, provided any arguments passed to the original constructor, and bound to the new instance. (NB: Avoid defining `onConstruct` using an arrow function).
-
-All of this is accomplished _without_ adding additional degrees of inheritance/delegation to the prototype chain.
+```ts
+{
+  // Invoke this function to call the decorated class' original constructor.
+  constructor: Function;
+  // Array of any arguments passed to the constructor.
+  args: Array<any>;
+}
+```
 
 **Example:**
 
@@ -39,11 +47,10 @@ In this example, we will create a higher-order decorator that accepts a list of 
 
 First, we will look at how this is done using the typical approach, then how to accomplish it using this package.
 
-```js
-
-function addSuperpowers (...powers) {
-  return function (ctor) {
-    return class AddSuperPowers extends ctor {
+```ts
+function AddSuperpowers (...powers) {
+  return function (Ctor: Function): Function {
+    return class AddSuperPowers extends Ctor {
       constructor(...args) {
         super(...args);
 
@@ -52,20 +59,20 @@ function addSuperpowers (...powers) {
         });
       }
 
-      hasSuperpower(power) {
+      hasSuperpower(power: string): boolean {
         return this[power];
       }
     }
   };
 }
 
-@addSuperpowers('strength', 'speed', 'flight')
+@AddSuperpowers('strength', 'speed', 'flight')
 class Person {
   constructor(name) {
     this.name = name;
   }
 
-  getName() {
+  getName(): string {
     return this.name;
   }
 }
@@ -97,31 +104,38 @@ If we used 5 decorators on the `Person` class, we would find 5 degrees of inheri
 
 Let's see how with a few modifications we can improve this situation:
 
-```js
-import classDecorator from '@darkobits/class-decorator';
+```ts
+import ClassDecorator from '@darkobits/class-decorator';
 
-function addSuperpowers (...powers) {
-  return classDecorator({
-    onConstruct () {
-      powers.forEach(power => {
-        this[power] = true;
-      });
-    },
-    prototype: {
-      hasSuperpower (power) {
-        return this[power];
-      }
-    }
-  });
-}
+const AddSuperpowers = (...powers: Array<any>): Function => ClassDecorator(Ctor => {
+  // Add hasSuperpower to the decorated class.
+  Ctor.prototype.hasSuperpower = function (power: string): boolean {
+    return this[power];
+  };
 
-@addSuperpowers('strength', 'speed', 'flight')
+  // Return a proxy constructor. The proxy constructor will be invoked with an
+  // object with the following shape:
+  return function ({constructor, args:}: {constructor: Function; args: Array<any>}): void {
+    powers.forEach(power => {
+      this[power] = true;
+    });
+
+    // Call the original constructor, forwarding any arguments provided to the
+    // proxy constructor.
+    constructor(...args);
+  }
+});
+
+
+@AddSuperpowers('strength', 'speed', 'flight')
 class Person {
-  constructor(name) {
+  name: string;
+
+  constructor(name: string) {
     this.name = name;
   }
 
-  getName() {
+  getName(): string {
     return this.name;
   }
 }
@@ -144,7 +158,48 @@ bob: {
                    }
 ```
 
-Class decorators that modify the original class rather than serving as syntactic sugar for more inheritance: :heart_eyes:
+### `MethodDecorator`
+
+Accepts a decorator implementation function and returns a decorator that may be applied to class methods. The decorator implementation function is invoked each time the decorated method is invoked, and is provided an object with the following shape:
+
+```ts
+{
+  // Original, pre-bound method.
+  method: Function;
+  // Name of the decorated method.
+  methodName: string;
+  // Any arguments passed to the method.
+  args: Array<any>;
+}
+```
+
+**Example:**
+
+```ts
+import {MethodDecorator} from '@darkobits/class-decorator';
+
+const AddSalutation = MethodDecorator(({method}) => {
+  return `Hello, my name is ${method()}.`;
+});
+
+class Person {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  @AddSalutation
+  getName(): string {
+    return this.name;
+  }
+}
+
+const bob = new Person('Bob');
+bob.getName() //=> 'Hello, my name is Bob.'
+
+```
+
 
 ## &nbsp;
 <p align="center">
