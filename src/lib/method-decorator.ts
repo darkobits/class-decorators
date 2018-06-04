@@ -1,15 +1,20 @@
 import ow from 'ow';
 
 
+export interface IMethodDecoratorOptions {
+  prototype: object;
+  methodName: string;
+  descriptor: PropertyDescriptor;
+}
+
+
 /**
  * This interface describes the shape of the object passed to method decorator
  * implementations.
  */
-export interface IDecoratedMethodOptions {
+export interface IProxyMethodOptions {
   // Original, decorated method, pre-bound to the class instance.
   method: Function;
-  // Name of the original method.
-  methodName: string;
   // Any arguments supplied to the method.
   args: Array<any>;
 }
@@ -26,15 +31,21 @@ export default function ClassMethodDecoratorFactory(decorator: Function): Functi
   // [Runtime] Ensure we were provided a function.
   ow(decorator, ow.function.label('decorator implementation'));
 
-  return (target: object, key: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
+  return (prototype: object, methodName: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
     const method = descriptor && descriptor.value;
 
     // [Runtime] Ensure we were applied to a method.
     ow(method, ow.function.label('decorated method'));
 
-    descriptor.value = function (...args: Array<any>) {
-      return Reflect.apply(decorator, this, [{args, method: method.bind(this), methodName: key} as IDecoratedMethodOptions]);
-    };
+    const proxyMethod: Function = decorator({prototype, methodName, descriptor} as IMethodDecoratorOptions);
+
+    // If the decorator implementation function returned a function, set up
+    // method delegation to the returned function.
+    if (ow.isValid(proxyMethod, ow.function)) {
+      descriptor.value = function (...args: Array<any>) {
+        return Reflect.apply(proxyMethod, this, [{args, method: method.bind(this)} as IProxyMethodOptions]);
+      };
+    }
 
     return descriptor;
   };

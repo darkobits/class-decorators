@@ -1,18 +1,23 @@
 import MethodDecorator from './method-decorator';
 
 
+const PROTO_PROPERTY = Symbol('PROTO_PROPERTY');
 const ORIG_RETURN = Symbol('ORIG_RETURN');
 const DECORATOR_RETURN = Symbol('DECORATOR_RETURN');
 
 
 // ----- Test Decorator --------------------------------------------------------
 
-const TestDecorator = MethodDecorator(({method, methodName, args}) => {
-  if (args[0] === DECORATOR_RETURN) {
-    return DECORATOR_RETURN;
-  }
+const TestDecorator = MethodDecorator(({prototype}) => {
+  prototype[PROTO_PROPERTY] = PROTO_PROPERTY;
 
-  return method(...args);
+  return ({method, args}) => {
+    if (args[0] === DECORATOR_RETURN) {
+      return DECORATOR_RETURN;
+    }
+
+    return method(...args);
+  };
 });
 
 
@@ -34,6 +39,10 @@ describe('MethodDecorator', () => {
 
   beforeEach(() => {
     instance = new Subject();
+  });
+
+  it('should set a property on the prototype', () => {
+    expect(instance[PROTO_PROPERTY]).toBe(PROTO_PROPERTY);
   });
 
   it('should return the original value', () => {
