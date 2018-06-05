@@ -29,8 +29,8 @@
     "@babel/plugin-proposal-decorators": "^7.0.0"
   },
   "dependencies": {
-    "is-plain-object": "2.x",
-    "ow": "^0.4.0"
+    "is-plain-object": "~2.0.4",
+    "ow": "~0.4.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.49",
