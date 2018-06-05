@@ -1,5 +1,5 @@
 {
-  "name": "@darkobits/class-decorator",
+  "name": "@darkobits/class-decorators",
   "description": "Decorator factories for classes and class methods.",
   "version": "4.0.0",
   "license": "WTFPL",
