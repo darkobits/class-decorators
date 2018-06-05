@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.0.2"></a>
+## [4.0.2](https://github.com/darkobits/class-decorator/compare/v4.0.1...v4.0.2) (2018-06-05)
+
+
+### Bug Fixes
+
+* Add fallback method to invoke canonical constructor. ([a180202](https://github.com/darkobits/class-decorator/commit/a180202))
+
+
+
 <a name="4.0.1"></a>
 ## [4.0.1](https://github.com/darkobits/class-decorator/compare/v4.0.0...v4.0.1) (2018-06-05)
 
