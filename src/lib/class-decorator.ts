@@ -20,7 +20,7 @@ export interface IDecoratedConstructorOptions {
  *
  * If the decorator implementation function returns a function, it will be used
  * as a proxy for the original constructor. The proxy constructor will be
- * invoked with a IDecoratedConstructorOptions object.
+ * invoked with an IDecoratedConstructorOptions object.
  */
 export default function ClassDecoratorFactory(decorator: Function): Function {
   // [Runtime] Ensure we were provided a function.
@@ -32,14 +32,14 @@ export default function ClassDecoratorFactory(decorator: Function): Function {
 
     const decoratedCtor: Function = decorator(Ctor);
 
-    // If the decorator implementation did not return a function, use the
+    // If the decorator implementation did not return a function, return the
     // original constructor.
     if (!ow.isValid(decoratedCtor, ow.function)) {
       return Ctor;
     }
 
-    // Otherwise, return a replacement constructor.
-    function ClassDecorator(...args: Array<any>) {
+    // Otherwise, return a proxy constructor.
+    function ProxyConstructor(...args: Array<any>) {
       const constructor = (...ctorArgs: Array<any>): void => {
         Reflect.apply(Ctor, this, ctorArgs);
       };
@@ -48,14 +48,15 @@ export default function ClassDecoratorFactory(decorator: Function): Function {
     }
 
     // Ensures instanceof checks pass as expected.
-    ClassDecorator.prototype = Ctor.prototype;
-    ClassDecorator.prototype.constructor = Ctor;
+    ProxyConstructor.prototype = Ctor.prototype;
+    ProxyConstructor.prototype.constructor = Ctor;
 
     // Ensures static property delegation works as expected.
-    Reflect.setPrototypeOf(ClassDecorator, Ctor);
+    Reflect.setPrototypeOf(ProxyConstructor, Ctor);
 
-    Reflect.defineProperty(ClassDecorator, 'name', {value: Ctor.name});
+    // Ensures 'this.constructor.name' works as expected.
+    Reflect.defineProperty(ProxyConstructor, 'name', {value: Ctor.name});
 
-    return ClassDecorator;
+    return ProxyConstructor;
   };
 }

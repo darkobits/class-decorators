@@ -1,6 +1,10 @@
 import ow from 'ow';
 
 
+/**
+ * This interface describes the shape of the object passed to method decorator
+ * implementations.
+ */
 export interface IMethodDecoratorOptions {
   prototype: object;
   methodName: string;
@@ -10,9 +14,9 @@ export interface IMethodDecoratorOptions {
 
 /**
  * This interface describes the shape of the object passed to method decorator
- * implementations.
+ * proxy functions.
  */
-export interface IProxyMethodOptions {
+export interface IMethodProxyOptions {
   // Original, decorated method, pre-bound to the class instance.
   method: Function;
   // Any arguments supplied to the method.
@@ -43,7 +47,7 @@ export default function ClassMethodDecoratorFactory(decorator: Function): Functi
     // method delegation to the returned function.
     if (ow.isValid(proxyMethod, ow.function)) {
       descriptor.value = function (...args: Array<any>) {
-        return Reflect.apply(proxyMethod, this, [{args, method: method.bind(this)} as IProxyMethodOptions]);
+        return Reflect.apply(proxyMethod, this, [{args, method: method.bind(this)} as IMethodProxyOptions]);
       };
     }
 
