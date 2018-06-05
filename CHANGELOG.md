@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.0.0"></a>
+# [4.0.0](https://github.com/darkobits/class-decorator/compare/v3.1.0...v4.0.0) (2018-06-05)
+
+
+### Code Refactoring
+
+* Update implementation. ([04d0b99](https://github.com/darkobits/class-decorator/commit/04d0b99))
+
+
+### Features
+
+* **MethodDecorator:** Pass prototype to method decorators. ([02fb91f](https://github.com/darkobits/class-decorator/commit/02fb91f))
+
+
+### BREAKING CHANGES
+
+* This refactor introduces a new API and will require consumers to update code that uses this package.
+
+
+
 <a name="3.1.0"></a>
 # [3.1.0](https://github.com/darkobits/class-decorator/compare/v3.0.1...v3.1.0) (2017-10-02)
 
