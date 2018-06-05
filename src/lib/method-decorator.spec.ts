@@ -6,18 +6,19 @@ const ORIG_RETURN = Symbol('ORIG_RETURN');
 const DECORATOR_RETURN = Symbol('DECORATOR_RETURN');
 
 
-// ----- Test Decorator --------------------------------------------------------
+// ----- Test Decorators -------------------------------------------------------
 
-const TestDecorator = MethodDecorator(({prototype}) => {
+const ProtoDecorator = MethodDecorator(({prototype}) => {
   prototype[PROTO_PROPERTY] = PROTO_PROPERTY;
+});
 
-  return ({method, args}) => {
-    if (args[0] === DECORATOR_RETURN) {
-      return DECORATOR_RETURN;
-    }
 
-    return method(...args);
-  };
+const TestDecorator = MethodDecorator(() => ({method, args}) => {
+  if (args[0] === DECORATOR_RETURN) {
+    return DECORATOR_RETURN;
+  }
+
+  return method(...args);
 });
 
 
@@ -26,6 +27,7 @@ const TestDecorator = MethodDecorator(({prototype}) => {
 class Subject {
   testMethodWasCalled: boolean = false;
 
+  @ProtoDecorator
   @TestDecorator
   testMethod(...args) {
     this.testMethodWasCalled = true;
