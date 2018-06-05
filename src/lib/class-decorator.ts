@@ -41,7 +41,7 @@ export default function ClassDecoratorFactory(decorator: Function): Function {
     // Otherwise, return a replacement constructor.
     function ClassDecorator(...args: Array<any>) {
       const constructor = (...ctorArgs: Array<any>): void => {
-        Object.assign(this, Reflect.construct(Ctor, ctorArgs));
+        Reflect.apply(Ctor, this, ctorArgs);
       };
 
       return Reflect.apply(decoratedCtor, this, [{args, constructor} as IDecoratedConstructorOptions]);
