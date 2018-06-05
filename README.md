@@ -1,4 +1,4 @@
-![class-decorators](https://user-images.githubusercontent.com/441546/36626828-a3f00872-18ee-11e8-8a02-1200e3961d9d.png)
+![class-decorators](https://user-images.githubusercontent.com/441546/40983641-ed637eda-6894-11e8-820d-ba572508fc20.png)
 
 [![][npm-img]][npm-url] [![][travis-img]][travis-url] [![][codacy-img]][codacy-url] [![][cc-img]][cc-url] [![][xo-img]][xo-url]
 
@@ -48,10 +48,10 @@ In this example, we will create a higher-order decorator that accepts a list of 
 First, we will look at how this is done using the typical approach, then how to accomplish it using this package.
 
 ```ts
-function AddSuperpowers (...powers) {
+function AddSuperpowers (...powers: Array<string>): Function {
   return function (Ctor: Function): Function {
-    return class AddSuperPowers extends Ctor {
-      constructor(...args) {
+    return class AddSuperpowers extends Ctor {
+      constructor(...args: Array<any>) {
         super(...args);
 
         powers.forEach(power => {
@@ -109,7 +109,7 @@ Let's see how with a few modifications we can improve this situation:
 ```ts
 import ClassDecorator from '@darkobits/class-decorators';
 
-const AddSuperpowers = (...powers: Array<any>): Function => ClassDecorator(Ctor => {
+const AddSuperpowers = (...powers: Array<string>): Function => ClassDecorator(Ctor => {
   // Add hasSuperpower to the decorated class.
   Ctor.prototype.hasSuperpower = function (power: string): boolean {
     return this[power];
