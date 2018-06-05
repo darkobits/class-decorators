@@ -41,7 +41,18 @@ export default function ClassDecoratorFactory(decorator: Function): Function {
     // Otherwise, return a proxy constructor.
     function ProxyConstructor(...args: Array<any>) {
       const constructor = (...ctorArgs: Array<any>): void => {
-        Reflect.apply(Ctor, this, ctorArgs);
+        // TODO: Re-visit this once the decorators specification is finalized.
+
+        try {
+          // If transpiled to ES5, this method will work, and is cleaner.
+          Reflect.apply(Ctor, this, ctorArgs);
+        } catch (err) {
+          // If transpiled to ES6+, class constructors must be invoked with the
+          // 'new' keyword, meaning we cannot call apply() on them. Although not
+          // ideal, this method effectively maps any side effects from the
+          // canonical constructor onto the current instance.
+          Object.assign(this, Reflect.construct(Ctor, ctorArgs));
+        }
       };
 
       return Reflect.apply(decoratedCtor, this, [{args, constructor} as IDecoratedConstructorOptions]);

@@ -1,3 +1,5 @@
+import {path} from 'ramda';
+
 import ClassDecorator from './class-decorator';
 
 
@@ -45,42 +47,116 @@ class Subject extends SuperSubject {
 
 
 describe('ClassDecorator', () => {
-  let instance;
+  describe('Reflect.apply() method', () => {
+    let instance;
 
-  beforeEach(() => {
-    instance = new Subject();
+    beforeEach(() => {
+      instance = new Subject();
+    });
+
+    it('should have a static member', () => {
+      expect(Subject[STATIC_PROPERTY]).toBe(STATIC_PROPERTY);
+    });
+
+    it('should have an inherited member', () => {
+      expect(instance[INHERITED_PROPERTY]).toBe(INHERITED_PROPERTY);
+    });
+
+    it('should have an own member', () => {
+      expect(instance[OWN_PROPERTY]).toBe(OWN_PROPERTY);
+    });
+
+    it('should have a prototype member', () => {
+      expect(instance[PROTO_PROPERTY]).toBe(PROTO_PROPERTY);
+    });
+
+    it('should have a member set by the decorated constructor', () => {
+      expect(instance[DECORATOR_OWN_PROPERTY]).toBe(DECORATOR_OWN_PROPERTY);
+    });
+
+    it('should pass instanceof checks', () => {
+      expect(instance instanceof Subject).toBe(true);
+      expect(instance instanceof SuperSubject).toBe(true);
+    });
+
+    it('should pass name checks', () => {
+      expect(instance.constructor.name).toBe(Subject.name);
+    });
+
+    it('should throw an error when not used on a class', () => {
+      expect(() => ConstructorDecorator(null)).toThrow('Expected `decorated class` to be of type `Function` but received type `null`');
+    });
   });
 
-  it('should have a static member', () => {
-    expect(Subject[STATIC_PROPERTY]).toBe(STATIC_PROPERTY);
-  });
+  describe('Object.assign() method', () => {
+    let instance;
+    let oApply;
+    let oAssign;
 
-  it('should have an inherited member', () => {
-    expect(instance[INHERITED_PROPERTY]).toBe(INHERITED_PROPERTY);
-  });
+    beforeAll(() => {
+      oAssign = Object.assign;
+      oApply = Reflect.apply;
 
-  it('should have an own member', () => {
-    expect(instance[OWN_PROPERTY]).toBe(OWN_PROPERTY);
-  });
+      Reflect.apply = jest.fn((target, context, args) => {
+        // Throw an error if Reflect.apply() was passed our test class,
+        // simulating what would happen in an ES6+ runtime.
+        if (target.name === Subject.name) {
+          throw new Error('nope');
+        }
 
-  it('should have a prototype member', () => {
-    expect(instance[PROTO_PROPERTY]).toBe(PROTO_PROPERTY);
-  });
+        return oApply(target, context, args);
+      });
 
-  it('should have a member set by the decorated constructor', () => {
-    expect(instance[DECORATOR_OWN_PROPERTY]).toBe(DECORATOR_OWN_PROPERTY);
-  });
+      Object.assign = jest.fn((objA, objB) => oAssign(objA, objB));
 
-  it('should pass instanceof checks', () => {
-    expect(instance instanceof Subject).toBe(true);
-    expect(instance instanceof SuperSubject).toBe(true);
-  });
+      instance = new Subject();
+    });
 
-  it('should pass name checks', () => {
-    expect(instance.constructor.name).toBe(Subject.name);
-  });
+    it('should use the Object.assign fallback method', () => {
+      // Assert that Object.assign was called
+      expect(Object.assign).toHaveBeenCalled();
 
-  it('should throw an error when not used on a class', () => {
-    expect(() => ConstructorDecorator(null)).toThrow('Expected `decorated class` to be of type `Function` but received type `null`');
+      // Assert that Object.assign was called with two objects that were both
+      // valid instances of our test class.
+      expect(path(['assign', 'mock', 'calls', 0, 0], Object) instanceof Subject).toBe(true);
+      expect(path(['assign', 'mock', 'calls', 0, 1], Object) instanceof Subject).toBe(true);
+    });
+
+    // Assert that instances created using the Object.assign() method have the
+    // same properties as ones created using the Reflect.apply() method.
+
+    it('should have a static member', () => {
+      expect(Subject[STATIC_PROPERTY]).toBe(STATIC_PROPERTY);
+    });
+
+    it('should have an inherited member', () => {
+      expect(instance[INHERITED_PROPERTY]).toBe(INHERITED_PROPERTY);
+    });
+
+    it('should have an own member', () => {
+      expect(instance[OWN_PROPERTY]).toBe(OWN_PROPERTY);
+    });
+
+    it('should have a prototype member', () => {
+      expect(instance[PROTO_PROPERTY]).toBe(PROTO_PROPERTY);
+    });
+
+    it('should have a member set by the decorated constructor', () => {
+      expect(instance[DECORATOR_OWN_PROPERTY]).toBe(DECORATOR_OWN_PROPERTY);
+    });
+
+    it('should pass instanceof checks', () => {
+      expect(instance instanceof Subject).toBe(true);
+      expect(instance instanceof SuperSubject).toBe(true);
+    });
+
+    it('should pass name checks', () => {
+      expect(instance.constructor.name).toBe(Subject.name);
+    });
+
+    afterAll(() => {
+      Reflect.apply = oApply;
+      Object.assign = oAssign;
+    });
   });
 });
