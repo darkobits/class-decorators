@@ -1,4 +1,4 @@
-![class-decorator](https://user-images.githubusercontent.com/441546/36626828-a3f00872-18ee-11e8-8a02-1200e3961d9d.png)
+![class-decorators](https://user-images.githubusercontent.com/441546/36626828-a3f00872-18ee-11e8-8a02-1200e3961d9d.png)
 
 [![][npm-img]][npm-url] [![][travis-img]][travis-url] [![][codacy-img]][codacy-url] [![][cc-img]][cc-url] [![][xo-img]][xo-url]
 
@@ -6,11 +6,11 @@ This package attempts to improve the way classes are decorated (see: [decorator 
 
 ## Install
 
-This package requires `@babel/plugin-proposal-decorators`.
+This package requires [`@babel/plugin-proposal-decorators`](https://new.babeljs.io/docs/en/next/babel-plugin-proposal-decorators.html).
 
 ```bash
 $ npm i -D @babel/plugin-proposal-decorators
-$ npm i @darkobits/class-decorator
+$ npm i @darkobits/class-decorators
 ```
 
 Then, update your `.babelrc` file:
@@ -68,6 +68,8 @@ function AddSuperpowers (...powers) {
 
 @AddSuperpowers('strength', 'speed', 'flight')
 class Person {
+  name: string;
+
   constructor(name) {
     this.name = name;
   }
@@ -84,7 +86,7 @@ bob.speed; //=> true
 bob.flight; //=> true
 ```
 
-This is great, but if we examine the prototype chain of the `bob` instance, it will look something like this:
+This approach works, but if we examine the prototype chain of the `bob` instance, it will look something like this:
 
 ```
 bob: {
@@ -100,12 +102,12 @@ bob: {
                                       }
 ```
 
-If we used 5 decorators on the `Person` class, we would find 5 degrees of inheritance added to each instance of `Person`. Decorators should faciliate _composition_, not exacerbate existing issues with inheritance. You might also notice that our decorator's prototype inherits from our original class, meaning that consumers of our decorator will not be able to shadow properties or methods applied by the decorator. This is bad behavior; the decorated class should always retain the ability to shadow properties set by ancestors _and_ decorators.
+If we used 5 decorators on the `Person` class, we would find 5 degrees of inheritance added to each instance of `Person`. Decorators should faciliate _composition_, not exacerbate existing issues with inheritance.
 
 Let's see how with a few modifications we can improve this situation:
 
 ```ts
-import ClassDecorator from '@darkobits/class-decorator';
+import ClassDecorator from '@darkobits/class-decorators';
 
 const AddSuperpowers = (...powers: Array<any>): Function => ClassDecorator(Ctor => {
   // Add hasSuperpower to the decorated class.
@@ -113,15 +115,14 @@ const AddSuperpowers = (...powers: Array<any>): Function => ClassDecorator(Ctor 
     return this[power];
   };
 
-  // Return a proxy constructor. The proxy constructor will be invoked with an
-  // object with the following shape:
-  return function ({constructor, args:}: {constructor: Function; args: Array<any>}): void {
+  // Returning a function which will serve as a delegate for the original
+  // constructor.
+  return function ({constructor, args}): void {
     powers.forEach(power => {
       this[power] = true;
     });
 
-    // Call the original constructor, forwarding any arguments provided to the
-    // proxy constructor.
+    // Call the original constructor, forwarding any arguments provided.
     constructor(...args);
   }
 });
@@ -160,32 +161,46 @@ bob: {
 
 ### `MethodDecorator`
 
-Accepts a decorator implementation function and returns a decorator that may be applied to class methods. The decorator implementation function is invoked each time the decorated method is invoked, and is provided an object with the following shape:
+Accepts a decorator implementation function and returns a decorator that may be applied to class methods. The decorator implementation function is passed a single object with the following shape:
 
 ```ts
 {
-  // Original, pre-bound method.
-  method: Function;
+  // Prototype object that owns the decorated method.
+  prototype: object;
   // Name of the decorated method.
   methodName: string;
-  // Any arguments passed to the method.
+  // Property descriptor of the decorated method.
+  descriptor: PropertyDescriptor;
+}
+```
+
+If the decorator implementation function returns a function, the returned function will act as a proxy for the original method. The proxy will be invoked each time the original method is called, and is passed a single object with the following shape:
+
+```ts
+{
+  // Any arguments passed to the method call.
   args: Array<any>;
+  // Original method, pre-bound to the class instance.
+  method: Function;
 }
 ```
 
 **Example:**
 
 ```ts
-import {MethodDecorator} from '@darkobits/class-decorator';
+import {MethodDecorator} from '@darkobits/class-decorators';
 
-const AddSalutation = MethodDecorator(({method}) => {
-  return `Hello, my name is ${method()}.`;
+const AddSalutation = MethodDecorator(({prototype, methodName}) => {
+  // Optionally manipulate prototype here.
+
+  // Return a function which will serve as a delegate for the original method.
+  return ({args, method}) => `Hello, my name is ${method()}.`;
 });
 
 class Person {
   name: string;
 
-  constructor(name: string) {
+  constructor(name: string): void {
     this.name = name;
   }
 
@@ -197,9 +212,7 @@ class Person {
 
 const bob = new Person('Bob');
 bob.getName() //=> 'Hello, my name is Bob.'
-
 ```
-
 
 ## &nbsp;
 <p align="center">
@@ -207,14 +220,14 @@ bob.getName() //=> 'Hello, my name is Bob.'
   <img width="22" height="22" src="https://cloud.githubusercontent.com/assets/441546/25318539/db2f4cf2-2845-11e7-8e10-ef97d91cd538.png">
 </p>
 
-[travis-img]: https://img.shields.io/travis/darkobits/class-decorator.svg?style=flat-square
-[travis-url]: https://travis-ci.org/darkobits/class-decorator
+[travis-img]: https://img.shields.io/travis/darkobits/class-decorators.svg?style=flat-square
+[travis-url]: https://travis-ci.org/darkobits/class-decorators
 
-[npm-img]: https://img.shields.io/npm/v/@darkobits/class-decorator.svg?style=flat-square
-[npm-url]: https://www.npmjs.com/package/@darkobits/class-decorator
+[npm-img]: https://img.shields.io/npm/v/@darkobits/class-decorators.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/@darkobits/class-decorators
 
 [codacy-img]: https://img.shields.io/codacy/coverage/bd23f052d0ec42b0ada5e46b006e6511.svg?style=flat-square
-[codacy-url]: https://www.codacy.com/app/darkobits/class-decorator
+[codacy-url]: https://www.codacy.com/app/darkobits/class-decorators
 
 [xo-img]: https://img.shields.io/badge/code_style-XO-e271a5.svg?style=flat-square
 [xo-url]: https://github.com/sindresorhus/xo
