@@ -3,24 +3,24 @@ import {path} from 'ramda';
 import ClassDecorator from './class-decorator';
 
 
-const STATIC_PROPERTY = Symbol('STATIC_PROPERTY');
-const INHERITED_PROPERTY = Symbol('INHERITED_PROPERTY');
-const OWN_PROPERTY = Symbol('OWN_PROPERTY');
-const PROTO_PROPERTY = Symbol('PROTO_PROPERTY');
-const DECORATOR_OWN_PROPERTY = Symbol('DECORATOR_OWN_PROPERTY');
+const STATIC_PROPERTY = 'STATIC_PROPERTY';
+const INHERITED_PROPERTY = 'INHERITED_PROPERTY';
+const OWN_PROPERTY = 'OWN_PROPERTY';
+const PROTO_PROPERTY = 'PROTO_PROPERTY';
+const DECORATOR_OWN_PROPERTY = 'DECORATOR_OWN_PROPERTY';
 
 
 // ----- Test Decorators -------------------------------------------------------
 
-const StaticPropertyDecorator = ClassDecorator(Class => {
+const StaticPropertyDecorator = ClassDecorator((Class: any) => {
   Class[STATIC_PROPERTY] = STATIC_PROPERTY;
 });
 
-const ProtoDecorator = ClassDecorator(Class => {
+const ProtoDecorator = ClassDecorator((Class: any) => {
   Class.prototype[PROTO_PROPERTY] = PROTO_PROPERTY;
 });
 
-const ConstructorDecorator = ClassDecorator(() => function ({constructor, args}) {
+const ConstructorDecorator = ClassDecorator(() => function ({constructor, args}: {constructor: Function; args: Array<any>}) {
   this[DECORATOR_OWN_PROPERTY] = DECORATOR_OWN_PROPERTY;
   constructor(...args);
 });
@@ -29,6 +29,10 @@ const ConstructorDecorator = ClassDecorator(() => function ({constructor, args})
 // ----- Test Classes ----------------------------------------------------------
 
 class SuperSubject { // tslint:disable-line no-unnecessary-class
+  [index: string]: any;
+
+  static STATIC_PROPERTY: any;
+
   constructor() {
     this[INHERITED_PROPERTY] = INHERITED_PROPERTY;
   }
@@ -48,7 +52,7 @@ class Subject extends SuperSubject {
 
 describe('ClassDecorator', () => {
   describe('Reflect.apply() method', () => {
-    let instance;
+    let instance: any;
 
     beforeEach(() => {
       instance = new Subject();
@@ -89,9 +93,9 @@ describe('ClassDecorator', () => {
   });
 
   describe('Object.assign() method', () => {
-    let instance;
-    let oApply;
-    let oAssign;
+    let instance: any;
+    let oApply: any;
+    let oAssign: any;
 
     beforeAll(() => {
       oAssign = Object.assign;

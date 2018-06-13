@@ -8,12 +8,12 @@ const DECORATOR_RETURN = Symbol('DECORATOR_RETURN');
 
 // ----- Test Decorators -------------------------------------------------------
 
-const ProtoDecorator = MethodDecorator(({prototype}) => {
+const ProtoDecorator = MethodDecorator(({prototype}: {prototype: any}) => {
   prototype[PROTO_PROPERTY] = PROTO_PROPERTY;
 });
 
 
-const TestDecorator = MethodDecorator(() => ({method, args}) => {
+const TestDecorator = MethodDecorator(() => ({method, args}: {method: Function; args: Array<any>}) => {
   if (args[0] === DECORATOR_RETURN) {
     return DECORATOR_RETURN;
   }
@@ -29,7 +29,7 @@ class Subject {
 
   @ProtoDecorator
   @TestDecorator
-  testMethod(...args) {
+  testMethod() {
     this.testMethodWasCalled = true;
     return ORIG_RETURN;
   }
@@ -37,7 +37,7 @@ class Subject {
 
 
 describe('MethodDecorator', () => {
-  let instance;
+  let instance: any;
 
   beforeEach(() => {
     instance = new Subject();

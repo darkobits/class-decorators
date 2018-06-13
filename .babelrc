@@ -16,7 +16,9 @@
     "@babel/plugin-proposal-class-properties",
     ["module-resolver", {
       "cwd": "babelrc",
-      "root": ["./src"],
+      "root": [
+        "./src"
+      ],
       "extensions": [
         ".ts",
         ".tsx",
