@@ -1,14 +1,6 @@
 import ow from 'ow';
 
-
-/**
- * This interface describes the shape of the object passed to class decorator
- * implementations.
- */
-export interface IDecoratedConstructorOptions {
-  constructor: Function;
-  args: Array<any>;
-}
+import {IDecoratedConstructorOptions} from 'etc/types';
 
 
 /**

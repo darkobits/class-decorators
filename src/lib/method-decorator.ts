@@ -1,27 +1,6 @@
 import ow from 'ow';
 
-
-/**
- * This interface describes the shape of the object passed to method decorator
- * implementations.
- */
-export interface IMethodDecoratorOptions {
-  prototype: object;
-  methodName: string;
-  descriptor: PropertyDescriptor;
-}
-
-
-/**
- * This interface describes the shape of the object passed to method decorator
- * proxy functions.
- */
-export interface IMethodProxyOptions {
-  // Original, decorated method, pre-bound to the class instance.
-  method: Function;
-  // Any arguments supplied to the method.
-  args: Array<any>;
-}
+import {IMethodDecoratorOptions, IMethodProxyOptions} from 'etc/types';
 
 
 /**
