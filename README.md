@@ -1,6 +1,14 @@
-![class-decorators](https://user-images.githubusercontent.com/441546/40983641-ed637eda-6894-11e8-820d-ba572508fc20.png)
-
-[![][npm-img]][npm-url] [![][travis-img]][travis-url] [![][codacy-img]][codacy-url] [![][cc-img]][cc-url] [![][xo-img]][xo-url]
+<a href="#top" id="top">
+  <img src="https://user-images.githubusercontent.com/441546/41694528-9173990c-74bf-11e8-950a-f02918039662.png" style="max-width: 100%">
+</a>
+<p align="center">
+  <a href="https://www.npmjs.com/package/@darkobits/class-decorators"><img src="https://img.shields.io/npm/v/@darkobits/class-decorators.svg?style=flat-square"></a>
+  <a href="https://travis-ci.org/darkobits/class-decorators"><img src="https://img.shields.io/travis/darkobits/class-decorators.svg?style=flat-square"></a>
+  <a href="https://david-dm.org/darkobits/class-decorators"><img src="https://img.shields.io/david/darkobits/class-decorators.svg?style=flat-square"></a>
+  <a href="https://www.codacy.com/app/darkobits/class-decorators"><img src="https://img.shields.io/codacy/coverage/bd23f052d0ec42b0ada5e46b006e6511.svg?style=flat-square"></a>
+  <a href="https://github.com/conventional-changelog/standard-version"><img src="https://img.shields.io/badge/conventional%20commits-1.0.0-027dc6.svg?style=flat-square"></a>
+  <a href="https://github.com/sindresorhus/xo"><img src="https://img.shields.io/badge/code_style-XO-e271a5.svg?style=flat-square"></a>
+</p>
 
 This package attempts to improve the way classes are decorated (see: [decorator proposal](https://ponyfoo.com/articles/javascript-decorators-proposal)) by not polluting the prototype chain, encouraging _composition over inheritance_.
 
@@ -219,18 +227,3 @@ bob.getName() //=> 'Hello, my name is Bob.'
   <br>
   <img width="22" height="22" src="https://cloud.githubusercontent.com/assets/441546/25318539/db2f4cf2-2845-11e7-8e10-ef97d91cd538.png">
 </p>
-
-[travis-img]: https://img.shields.io/travis/darkobits/class-decorators.svg?style=flat-square
-[travis-url]: https://travis-ci.org/darkobits/class-decorators
-
-[npm-img]: https://img.shields.io/npm/v/@darkobits/class-decorators.svg?style=flat-square
-[npm-url]: https://www.npmjs.com/package/@darkobits/class-decorators
-
-[codacy-img]: https://img.shields.io/codacy/coverage/bd23f052d0ec42b0ada5e46b006e6511.svg?style=flat-square
-[codacy-url]: https://www.codacy.com/app/darkobits/class-decorators
-
-[xo-img]: https://img.shields.io/badge/code_style-XO-e271a5.svg?style=flat-square
-[xo-url]: https://github.com/sindresorhus/xo
-
-[cc-img]: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=flat-square
-[cc-url]: https://conventionalcommits.org/
