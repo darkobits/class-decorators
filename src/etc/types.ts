@@ -28,4 +28,6 @@ export interface IMethodProxyOptions {
   method: Function;
   // Any arguments supplied to the method.
   args: Array<any>;
+  // Class instance.
+  instance: any;
 }

@@ -26,7 +26,11 @@ export default function ClassMethodDecoratorFactory(decorator: Function): Functi
     // method delegation to the returned function.
     if (ow.isValid(proxyMethod, ow.function)) {
       descriptor.value = function (...args: Array<any>) {
-        return Reflect.apply(proxyMethod, this, [{args, method: method.bind(this)} as IMethodProxyOptions]);
+        return Reflect.apply(proxyMethod, this, [{
+          args,
+          method: method.bind(this),
+          instance: this
+        } as IMethodProxyOptions]);
       };
     }
 
