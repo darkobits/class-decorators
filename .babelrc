@@ -6,7 +6,6 @@
         "node": "8.0.0"
       }
     }],
-    "@babel/preset-stage-3",
     "@babel/typescript"
   ],
   "plugins": [
@@ -14,6 +13,7 @@
       "legacy": true
     }],
     "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-optional-catch-binding",
     ["module-resolver", {
       "cwd": "babelrc",
       "root": [

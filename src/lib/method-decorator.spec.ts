@@ -25,7 +25,7 @@ const TestDecorator = MethodDecorator(() => ({method, args}: {method: Function; 
 // ----- Test Class ------------------------------------------------------------
 
 class Subject {
-  testMethodWasCalled: boolean = false;
+  testMethodWasCalled = false;
 
   @ProtoDecorator
   @TestDecorator
