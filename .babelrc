@@ -28,5 +28,6 @@
       ]
     }]
   ],
-  "comments": false
+  "comments": false,
+  "sourceMaps": true
 }
