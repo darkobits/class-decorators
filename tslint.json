@@ -2,7 +2,9 @@
 	"extends": "tslint-xo/space",
 	"rules": {
 		// Requires using 'Array<T>' style for arrays.
-		"array-type": [true, "generic"],
+    "array-type": [true, "generic"],
+
+    "ban-types": false,
 
 		// Do not enforce formatting rules for single-line comments.
 		"comment-format": false,
@@ -14,6 +16,8 @@
 		// project’s package.json. This is disabled because it doesn't work with
 		// custom module resolution rules.
 		"no-implicit-dependencies": false,
+
+    "no-unsafe-any": false,
 
 		// Disallows unused imports, variables, functions, classes, type parameters,
 		// and more.

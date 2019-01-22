@@ -12,17 +12,19 @@ const DECORATOR_OWN_PROPERTY = 'DECORATOR_OWN_PROPERTY';
 
 // ----- Test Decorators -------------------------------------------------------
 
-const StaticPropertyDecorator = ClassDecorator((Class: any) => {
+const StaticPropertyDecorator = ClassDecorator(Class => {
   Class[STATIC_PROPERTY] = STATIC_PROPERTY;
 });
 
-const ProtoDecorator = ClassDecorator((Class: any) => {
+const ProtoDecorator = ClassDecorator(Class => {
   Class.prototype[PROTO_PROPERTY] = PROTO_PROPERTY;
 });
 
-const ConstructorDecorator = ClassDecorator(() => function ({constructor, args}: {constructor: Function; args: Array<any>}) {
-  this[DECORATOR_OWN_PROPERTY] = DECORATOR_OWN_PROPERTY;
-  constructor(...args);
+const ConstructorDecorator = ClassDecorator(() => {
+  return function ({constructor, args}) {
+    this[DECORATOR_OWN_PROPERTY] = DECORATOR_OWN_PROPERTY;
+    constructor(...args);
+  };
 });
 
 
@@ -88,7 +90,8 @@ describe('ClassDecorator', () => {
     });
 
     it('should throw an error when not used on a class', () => {
-      expect(() => ConstructorDecorator(null)).toThrow('Expected `decorated class` to be of type `Function` but received type `null`');
+      // @ts-ignore
+      expect(() => ConstructorDecorator(undefined)).toThrow('Expected `decorated class` to be of type `Function` but received type `undefined`');
     });
   });
 
@@ -111,7 +114,7 @@ describe('ClassDecorator', () => {
         return oApply(target, context, args);
       });
 
-      Object.assign = jest.fn((objA, objB) => oAssign(objA, objB));
+      Object.assign = jest.fn((objA, objB) => oAssign(objA, objB)); // tslint:disable-line no-unnecessary-callback-wrapper
 
       instance = new Subject();
     });

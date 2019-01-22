@@ -1,6 +1,5 @@
 import ow from 'ow';
-
-import {IDecoratedConstructorOptions} from 'etc/types';
+import {ClassDecoratorImplementation} from '../etc/types';
 
 
 /**
@@ -14,24 +13,24 @@ import {IDecoratedConstructorOptions} from 'etc/types';
  * as a proxy for the original constructor. The proxy constructor will be
  * invoked with an IDecoratedConstructorOptions object.
  */
-export default function ClassDecoratorFactory(decorator: Function): Function {
+export default function ClassDecoratorFactory(decorator: ClassDecoratorImplementation) {
   // [Runtime] Ensure we were provided a function.
-  ow(decorator, ow.function.label('decorator implementation'));
+  ow(decorator, 'decorator implementation', ow.function);
 
-  return (Ctor: Function): Function => {
+  return (Ctor: any): typeof Ctor => {
     // [Runtime] Ensure decorator was applied to a class.
-    ow(Ctor, ow.function.label('decorated class'));
+    ow(Ctor, 'decorated class', ow.function);
 
-    const decoratedCtor: Function = decorator(Ctor);
+    const decoratedCtor = decorator(Ctor);
 
     // If the decorator implementation did not return a function, return the
     // original constructor.
-    if (!ow.isValid(decoratedCtor, ow.function)) {
+    if (!decoratedCtor || typeof decoratedCtor !== 'function') { // tslint:disable-line strict-type-predicates
       return Ctor;
     }
 
     // Otherwise, return a proxy constructor.
-    function ProxyConstructor(...args: Array<any>) {
+    const ProxyConstructor = function (...args: Array<any>) {
       const constructor = (...ctorArgs: Array<any>): void => {
         // TODO: Re-visit this once the decorators specification is finalized.
         try {
@@ -46,8 +45,8 @@ export default function ClassDecoratorFactory(decorator: Function): Function {
         }
       };
 
-      return Reflect.apply(decoratedCtor, this, [{args, constructor} as IDecoratedConstructorOptions]);
-    }
+      return Reflect.apply(decoratedCtor, this, [{args, constructor}]);
+    };
 
     // Ensures instanceof checks pass as expected.
     ProxyConstructor.prototype = Ctor.prototype;
@@ -59,6 +58,6 @@ export default function ClassDecoratorFactory(decorator: Function): Function {
     // Ensures 'this.constructor.name' works as expected.
     Reflect.defineProperty(ProxyConstructor, 'name', {value: Ctor.name});
 
-    return ProxyConstructor;
+    return ProxyConstructor as unknown as typeof Ctor;
   };
 }

@@ -6,6 +6,8 @@
     // Redirect output structure to this directory.
     "outDir": "dist",
 
+    "target": "es5",
+
     // Specify path mapping to be computed relative to baseUrl option.
     "paths": {
       "*": [

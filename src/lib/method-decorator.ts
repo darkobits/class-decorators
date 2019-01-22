@@ -1,6 +1,5 @@
 import ow from 'ow';
-
-import {IMethodDecoratorOptions, IMethodProxyOptions} from 'etc/types';
+import {MethodDecoratorImplementation} from '../etc/types';
 
 
 /**
@@ -10,27 +9,27 @@ import {IMethodDecoratorOptions, IMethodProxyOptions} from 'etc/types';
  * The decorator implementation function will be invoked each time the method is
  * called, and is passed an IMethodDecoratorOptions object.
  */
-export default function ClassMethodDecoratorFactory(decorator: Function): Function {
+export default function ClassMethodDecoratorFactory(decorator: MethodDecoratorImplementation) {
   // [Runtime] Ensure we were provided a function.
-  ow(decorator, ow.function.label('decorator implementation'));
+  ow(decorator, 'decorator implementation', ow.function);
 
   return (prototype: object, methodName: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
-    const method = descriptor && descriptor.value;
+    const method = descriptor && descriptor.value as GeneratorFunction;
 
     // [Runtime] Ensure we were applied to a method.
-    ow(method, ow.function.label('decorated method'));
+    ow(method, 'decorated method', ow.function);
 
-    const proxyMethod: Function = decorator({prototype, methodName, descriptor} as IMethodDecoratorOptions);
+    const proxyMethod = decorator({prototype, methodName, descriptor});
 
     // If the decorator implementation function returned a function, set up
     // method delegation to the returned function.
-    if (ow.isValid(proxyMethod, ow.function)) {
+    if (typeof proxyMethod === 'function') {
       descriptor.value = function (...args: Array<any>) {
         return Reflect.apply(proxyMethod, this, [{
           args,
           method: method.bind(this),
           instance: this
-        } as IMethodProxyOptions]);
+        }]);
       };
     }
 

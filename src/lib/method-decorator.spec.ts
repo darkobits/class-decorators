@@ -1,5 +1,5 @@
 import MethodDecorator from './method-decorator';
-import {IMethodProxyOptions} from 'etc/types';
+// import {MethodProxyOptions} from 'etc/types';
 
 
 const PROTO_PROPERTY = Symbol('PROTO_PROPERTY');
@@ -9,12 +9,12 @@ const DECORATOR_RETURN = Symbol('DECORATOR_RETURN');
 
 // ----- Test Decorators -------------------------------------------------------
 
-const ProtoDecorator = MethodDecorator(({prototype}: {prototype: any}) => {
+const ProtoDecorator = MethodDecorator(({prototype}) => {
   prototype[PROTO_PROPERTY] = PROTO_PROPERTY;
 });
 
 
-const TestDecorator = MethodDecorator(() => ({method, args, instance}: IMethodProxyOptions) => {
+const TestDecorator = MethodDecorator(() => ({method, args, instance}) => {
   if (!instance) {
     throw new Error('"instance" is undefined.');
   }
