@@ -1,6 +1,4 @@
 import MethodDecorator from './method-decorator';
-// import {MethodProxyOptions} from 'etc/types';
-
 
 const PROTO_PROPERTY = Symbol('PROTO_PROPERTY');
 const ORIG_RETURN = Symbol('ORIG_RETURN');
@@ -12,7 +10,6 @@ const DECORATOR_RETURN = Symbol('DECORATOR_RETURN');
 const ProtoDecorator = MethodDecorator(({prototype}) => {
   prototype[PROTO_PROPERTY] = PROTO_PROPERTY;
 });
-
 
 const TestDecorator = MethodDecorator(() => ({method, args, instance}) => {
   if (!instance) {

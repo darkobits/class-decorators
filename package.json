@@ -12,7 +12,7 @@
     "clean": "del dist",
     "check:styles": "tslint --project tsconfig.json --format codeFrame",
     "check:types": "tsc --emitDeclarationOnly && del **/*.spec.d.ts",
-    "test": "jest",
+    "test": "jest --no-cache",
     "prebuild": "run-p clean check:*",
     "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline",
     "prebump": "run-p test build",

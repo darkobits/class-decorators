@@ -2,9 +2,9 @@
 // NOT BE GENERATED CORRECTLY.
 
 // Values.
-export {default as default} from './lib/class-decorator';
-export {default as ClassDecorator} from './lib/class-decorator';
-export {default as MethodDecorator} from './lib/method-decorator';
+export {default as default} from './class-decorator';
+export {default as ClassDecorator} from './class-decorator';
+export {default as MethodDecorator} from './method-decorator';
 
 // Types.
 export * from './etc/types';

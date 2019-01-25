@@ -1,5 +1,5 @@
 import ow from 'ow';
-import {MethodDecoratorImplementation} from '../etc/types';
+import {GenericIndexableFunction, MethodDecoratorImplementation} from './etc/types';
 
 
 /**
@@ -7,14 +7,14 @@ import {MethodDecoratorImplementation} from '../etc/types';
  * applied to class methods.
  *
  * The decorator implementation function will be invoked each time the method is
- * called, and is passed an IMethodDecoratorOptions object.
+ * called, and is passed an MethodDecoratorOptions object.
  */
 export default function ClassMethodDecoratorFactory(decorator: MethodDecoratorImplementation) {
   // [Runtime] Ensure we were provided a function.
   ow(decorator, 'decorator implementation', ow.function);
 
   return (prototype: object, methodName: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
-    const method = descriptor && descriptor.value as GeneratorFunction;
+    const method = descriptor && descriptor.value as GenericIndexableFunction;
 
     // [Runtime] Ensure we were applied to a method.
     ow(method, 'decorated method', ow.function);
