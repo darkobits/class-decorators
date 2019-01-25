@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/darkobits/class-decorator/compare/v4.1.2...v5.0.0) (2019-01-25)
+
+
+### Bug Fixes
+
+* Ensure parent constructors receive correct prototype values set by child constructors. ([f749b65](https://github.com/darkobits/class-decorator/commit/f749b65))
+
+
+### BREAKING CHANGES
+
+* Due to ES6 strictly requiring that constructors be invoked with "new", it is not possible to properly decorate class constructors in a way that allows the decorator to intercept or otherwise control how the decorated constructor is called. Therefore, the "constructor" property has been removed from the options object passed to delegate constructors.
+
+This functionality may be re-added at some point in the future if the final decorators spec is robust enough to facilitate this degree of control over constructor invocation.
+
+If the former behavior is still required, you may remain on version 4.x of this library, but you must ensure that your code is transpiled to ES5, ensuring that classes are converted into regular functions.
+
+
+
 <a name="4.1.2"></a>
 ## [4.1.2](https://github.com/darkobits/class-decorator/compare/v4.1.1...v4.1.2) (2019-01-22)
 
