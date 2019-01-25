@@ -29,35 +29,18 @@ export default function ClassDecoratorFactory(decorator: ClassDecoratorImplement
       return Ctor;
     }
 
-    // Otherwise, return a proxy constructor.
-    const ProxyConstructor = function (...args: Array<any>) {
-      const constructor = (...ctorArgs: Array<any>): void => {
-        // TODO: Re-visit this once the decorators specification is finalized.
-        try {
-          // If transpiled to ES5, this method will work, and is cleaner.
-          Reflect.apply(Ctor, this, ctorArgs);
-        } catch {
-          // If transpiled to ES6+, class constructors must be invoked with the
-          // 'new' keyword, meaning we cannot call apply() on them. Although not
-          // ideal, this method effectively maps any side effects from the
-          // canonical constructor onto the current instance.
-          Object.assign(this, Reflect.construct(Ctor, ctorArgs));
-        }
-      };
+    return class ClassDecorator extends Ctor {
+      constructor(...args: Array<any>) {
+        super(...args);
 
-      return Reflect.apply(decoratedCtor, this, [{args, constructor}]);
+        const options = Object.assign(Object.create(null), { // tslint:disable-line no-null-keyword
+          args,
+          context: this
+        });
+
+        // @ts-ignore
+        Reflect.apply(decoratedCtor, this, [options]);
+      }
     };
-
-    // Ensures instanceof checks pass as expected.
-    ProxyConstructor.prototype = Ctor.prototype;
-    ProxyConstructor.prototype.constructor = Ctor;
-
-    // Ensures static property delegation works as expected.
-    Reflect.setPrototypeOf(ProxyConstructor, Ctor);
-
-    // Ensures 'this.constructor.name' works as expected.
-    Reflect.defineProperty(ProxyConstructor, 'name', {value: Ctor.name});
-
-    return ProxyConstructor as unknown as typeof Ctor;
   };
 }
