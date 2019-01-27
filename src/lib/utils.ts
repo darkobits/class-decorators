@@ -118,6 +118,10 @@ export function withPrototypeExtension(baseProtoOrClass: object | Function, exte
 }
 
 
+/**
+ * Provided two numbers, returns a string describing the relative difference
+ * between them.
+ */
 export function relativeRate(a: number, b: number): string {
   if (a === b) {
     return 'equal';
@@ -125,10 +129,6 @@ export function relativeRate(a: number, b: number): string {
 
   const descriptor = b > a ? 'faster' : 'slower';
   const rate = b > a ? b / a : a / b;
-
-  if (rate === 1) {
-    return 'equal';
-  }
 
   return `${rate.toFixed(2)}x ${descriptor}`;
 }
