@@ -26,6 +26,10 @@
 		// and more.
 		"no-unused": [true, "unused-catch-binding"],
 
+		// This rule seems to require type declarations in places where types can
+		// be trivially-inferred.
+		"typedef": false,
+
 		// Allow variable names in lowerCamelCase, PascalCase, and UPPER_CASE.
 		// Additionally, ban the use of reserved TypeScript keywords.
 		"variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"]

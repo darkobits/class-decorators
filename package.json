@@ -12,7 +12,7 @@
     "clean": "del dist",
     "check:styles": "tslint --project tsconfig.json --format codeFrame",
     "check:types": "tsc --emitDeclarationOnly && del **/*.spec.d.ts",
-    "test": "jest --no-cache",
+    "test": "jest",
     "prebuild": "run-p clean check:*",
     "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline",
     "prebump": "run-p test build",
@@ -24,9 +24,6 @@
     "@babel/plugin-proposal-decorators": "^7.0.0"
   },
   "dependencies": {
-    "chalk": "^2.4.2",
-    "convert-hrtime": "^2.0.0",
-    "is-plain-object": "~2.0.4",
     "ow": "~0.10.0"
   },
   "devDependencies": {
@@ -36,22 +33,24 @@
     "@babel/plugin-proposal-class-properties": "^7.3.0",
     "@babel/plugin-proposal-decorators": "^7.3.0",
     "@babel/plugin-proposal-optional-catch-binding": "^7.2.0",
-    "@babel/preset-env": "^7.3.0",
+    "@babel/preset-env": "^7.3.1",
     "@babel/preset-typescript": "^7.1.0",
     "@types/convert-hrtime": "^2.0.0",
     "@types/jest": "^23.3.13",
     "@types/node": "^10.12.18",
     "@types/ramda": "^0.25.47",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^23.6.0",
+    "babel-jest": "^24.0.0",
     "babel-plugin-module-resolver": "^3.1.3",
+    "chalk": "^2.4.2",
+    "convert-hrtime": "^2.0.0",
     "del-cli": "^1.1.0",
-    "jest": "^23.6.0",
+    "jest": "^24.0.0",
     "npm-run-all": "^4.1.5",
     "ramda": "^0.26.1",
     "standard-version": "^4.4.0",
     "tslint": "^5.12.1",
-    "tslint-xo": "^0.12.0",
+    "tslint-xo": "^0.13.0",
     "typescript": "^3.2.4"
   }
 }
