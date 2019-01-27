@@ -2,30 +2,24 @@ import {doTest} from 'lib/utils';
 import ClassDecorator from '../class-decorator';
 
 
-console.clear();
-
-
 // Use an N of 1 million for each test.
-const iterations = 1000000;
+const n = 1000000;
 
 
-// ----- Constructing Plain Classes --------------------------------------------
+// ----- Base Case -------------------------------------------------------------
 
-export class UndecoratedClass {
+class UndecoratedClass {
   method() {
     // Empty block.
   }
 }
 
-const baseTime = doTest({
-  iterations,
-  label: '[ ] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original'
-}, () => {
+const baseTime = doTest({n, label: '[ ] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original'}, () => {
   return new UndecoratedClass();
 });
 
 
-// ----- Constructing Decorated Class with Simple Decorator --------------------
+// ----- No Proxy Constructor --------------------------------------------------
 
 const SimpleDecorator = ClassDecorator(Ctor => {
   Ctor.prototype.foo = 'bar';
@@ -38,16 +32,12 @@ class SimpleDecoratedClass {
   }
 }
 
-doTest({
-  iterations,
-  label: '[X] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original',
-  baseTime
-}, () => {
+doTest({n, label: '[X] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original', baseTime}, () => {
   return new SimpleDecoratedClass();
 });
 
 
-// ----- Constructing Decorated Class With Proxy Constructor -------------------
+// ----- Proxy Constructor That Does Not Invoke Original Constructor -----------
 
 const WithProxyConstructor = ClassDecorator(() => {
   return () => {
@@ -56,22 +46,18 @@ const WithProxyConstructor = ClassDecorator(() => {
 });
 
 @WithProxyConstructor
-export class ProxyDecoratedClass {
+class ProxyDecoratedClass {
   method() {
     // Empty block.
   }
 }
 
-doTest({
-  iterations,
-  label: '[X] Decorated [X] Uses Proxy Constructor [ ] Proxy Invokes Original',
-  baseTime
-}, () => {
+doTest({n, label: '[X] Decorated [X] Uses Proxy Constructor [ ] Proxy Invokes Original', baseTime}, () => {
   return new ProxyDecoratedClass();
 });
 
 
-// ----- Constructing Decorated Classes ----------------------------------------
+// ----- Proxy Constructor That Invokes Original Constructor -------------------
 
 const WithProxyConstructorThatInvokesOriginal = ClassDecorator(() => {
   return ({args, constructor}) => {
@@ -80,16 +66,12 @@ const WithProxyConstructorThatInvokesOriginal = ClassDecorator(() => {
 });
 
 @WithProxyConstructorThatInvokesOriginal
-export class ProxyInvokingDecoratedClass {
+class ProxyInvokingDecoratedClass {
   method() {
     // Empty block.
   }
 }
 
-doTest({
-  iterations,
-  label: '[X] Decorated [X] Uses Proxy Constructor [X] Proxy Invokes Original',
-  baseTime
-}, () => {
+doTest({n, label: '[X] Decorated [X] Uses Proxy Constructor [X] Proxy Invokes Original', baseTime}, () => {
   return new ProxyInvokingDecoratedClass();
 });

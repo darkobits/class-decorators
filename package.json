@@ -18,7 +18,7 @@
     "prebump": "run-p test build",
     "bump": "standard-version",
     "bump:beta": "npm run prebump && standard-version --prerelease=beta",
-    "perf": "babel-node --extensions='.ts' src/perf.ts"
+    "perf": "babel-node --extensions='.ts' src/etc/perf.ts"
   },
   "peerDependencies": {
     "@babel/plugin-proposal-decorators": "^7.0.0"

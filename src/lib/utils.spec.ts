@@ -7,12 +7,12 @@ describe('doTest', () => {
     const n = 100;
 
     doTest({
-      iterations: n,
+      n,
       label: 'foo'
     }, task);
 
     doTest({
-      iterations: n,
+      n,
       label: 'foo',
       baseTime: 100
     }, task);

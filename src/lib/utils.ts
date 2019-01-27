@@ -135,7 +135,7 @@ export function relativeRate(a: number, b: number): string {
 
 
 export interface TestOptions {
-  iterations: number;
+  n: number;
   label: string;
   baseTime?: number;
 }
@@ -144,10 +144,10 @@ export interface TestOptions {
 /**
  * Used by perf.ts to run performance tests.
  */
-export function doTest({iterations, label, baseTime}: TestOptions, fn: Function) {
+export function doTest({n, label, baseTime}: TestOptions, fn: Function) {
   const startTime = process.hrtime();
 
-  for (let i = 0; i < iterations; i++) {
+  for (let i = 0; i < n; i++) {
     fn();
   }
 
@@ -155,9 +155,9 @@ export function doTest({iterations, label, baseTime}: TestOptions, fn: Function)
 
   if (baseTime) {
     const relative = relativeRate(milliseconds, baseTime);
-    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(iterations.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)} (${relative}).\n`);
+    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(n.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)} (${relative}).\n`);
   } else {
-    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(iterations.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)}.\n`);
+    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(n.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)}.\n`);
   }
 
   return milliseconds;
