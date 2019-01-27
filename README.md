@@ -12,9 +12,13 @@
 
 This package attempts to improve the way classes are decorated (see: [decorator proposal](https://ponyfoo.com/articles/javascript-decorators-proposal)) by not polluting the prototype chain, encouraging _composition over inheritance_.
 
+#### 🚧 **A Note on Performance** 🚧
+
+This package makes use of [`Reflect.setPrototypeOf`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/setPrototypeOf), which has known performance implications. If you need to create a million instances of a class in an environment where every millisecond counts, **do not use this package**. In fact, you might re-consider the usage of JavaScript at all in such cases. If, however, you are using JavaScript as a general purpose programming language to solve "normal" problems, there will be no noticable change in your application's performance characteristics. Performance benchmarks may be run via `npm run perf`.
+
 ## Install
 
-This package requires [`@babel/plugin-proposal-decorators`](https://new.babeljs.io/docs/en/next/babel-plugin-proposal-decorators.html).
+This package requires [`@babel/plugin-proposal-decorators`](https://new.babeljs.io/docs/en/next/babel-plugin-proposal-decorators.html) as a peer dependency and assumes that your code is being transpiled using Babel. It also assumes you have `legacy: true` enabled, as it implements the legacy decorators specification.
 
 ```bash
 $ npm i -D @babel/plugin-proposal-decorators
@@ -26,9 +30,7 @@ Then, update your `.babelrc` file:
 ```
 {
   "plugins": [
-    ["@babel/plugin-proposal-decorators", {
-      "legacy": true
-    }]
+    ["@babel/plugin-proposal-decorators", {"legacy": true}]
   ]
 }
 ```
@@ -37,15 +39,17 @@ Then, update your `.babelrc` file:
 
 ### `ClassDecorator`
 
-This package's default export is a function that accepts a decorator implementation function and returns a decorator that may be applied to a class. The decorator implementation function is invoked with the target class. If the decorator implementation returns
+This package's default export is a function that accepts a decorator implementation function and returns a decorator that may be applied to a class. The decorator implementation function is passed the target class. If the decorator implementation returns
 a function, that function will be used as a proxy constructor for the decorated class. The proxy constructor will be passed an object with the following shape:
 
 ```ts
 {
-  // Invoke this function to call the decorated class' original constructor.
-  constructor: Function;
   // Array of any arguments passed to the constructor.
   args: Array<any>;
+  // Invoke this function to call the decorated class' original constructor.
+  constructor: Function;
+  // 'this' binding, allowing the proxy constructor to be an arrow function.
+  context: any;
 }
 ```
 
@@ -57,7 +61,7 @@ First, we will look at how this is done using the typical approach, then how to 
 
 ```ts
 function AddSuperpowers (...powers: Array<string>): Function {
-  return function (Ctor: Function): Function {
+  return function (Ctor: Function): typeof Ctor {
     return class AddSuperpowers extends Ctor {
       constructor(...args: Array<any>) {
         super(...args);
@@ -112,25 +116,28 @@ bob: {
 
 If we used 5 decorators on the `Person` class, we would find 5 degrees of inheritance added to each instance of `Person`. Decorators should faciliate _composition_, not exacerbate existing issues with inheritance.
 
+Furthermore, because we are using subclassing to implement our decorator, we are forced to call the decorated class' constructor (via `super`), and we must follow all of the relevant rules around when super calls must be made. This approach reduces decorators to nothing more than syntactical sugar for subclassing, and isn't really employing the [Decorator Pattern](https://addyosmani.com/resources/essentialjsdesignpatterns/book/#decoratorpatternjavascript).
+
 Let's see how with a few modifications we can improve this situation:
 
 ```ts
 import ClassDecorator from '@darkobits/class-decorators';
 
 const AddSuperpowers = (...powers: Array<string>): Function => ClassDecorator(Ctor => {
-  // Add hasSuperpower to the decorated class.
+  // Add a hasSuperpower method to the decorated class.
   Ctor.prototype.hasSuperpower = function (power: string): boolean {
     return this[power];
   };
 
-  // Returning a function which will serve as a delegate for the original
-  // constructor.
+  // Returning a function here will result in the function acting as a proxy
+  // constructor for the decorated class.
   return function ({constructor, args}): void {
     powers.forEach(power => {
       this[power] = true;
     });
 
-    // Call the original constructor, forwarding any arguments provided.
+    // (Optionally) call the original constructor, forwarding any arguments
+    // provided.
     constructor(...args);
   }
 });
@@ -152,7 +159,7 @@ class Person {
 const bob = new Person('Bob');
 ```
 
-If we looked at the protoype chain for this instance of `bob`, we would see:
+Notice that we now have full control over when and how the original constructor is called. We can even decide to not call it at all. And, if we looked at the protoype chain for this instance of `Person`, we would see:
 
 ```
 bob: {
