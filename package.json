@@ -17,12 +17,15 @@
     "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline",
     "prebump": "run-p test build",
     "bump": "standard-version",
-    "bump:beta": "npm run prebump && standard-version --prerelease=beta"
+    "bump:beta": "npm run prebump && standard-version --prerelease=beta",
+    "perf": "babel-node --extensions='.ts' src/perf.ts"
   },
   "peerDependencies": {
     "@babel/plugin-proposal-decorators": "^7.0.0"
   },
   "dependencies": {
+    "chalk": "^2.4.2",
+    "convert-hrtime": "^2.0.0",
     "is-plain-object": "~2.0.4",
     "ow": "~0.10.0"
   },
@@ -35,6 +38,7 @@
     "@babel/plugin-proposal-optional-catch-binding": "^7.2.0",
     "@babel/preset-env": "^7.3.0",
     "@babel/preset-typescript": "^7.1.0",
+    "@types/convert-hrtime": "^2.0.0",
     "@types/jest": "^23.3.13",
     "@types/node": "^10.12.18",
     "@types/ramda": "^0.25.47",

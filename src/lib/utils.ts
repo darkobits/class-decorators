@@ -1,10 +1,15 @@
+import chalk from 'chalk';
+// @ts-ignore
+import convertHrtime from 'convert-hrtime';
+
+
 /**
  * Set's the 'name' property of the provided function to the provided value, and
- * performs some minor obfuscation so that environments like Chrome, which
+ * performs some minor indirection so that environments like Chrome, which
  * perform an obnoxious amount of static analysis of your code to try and report
- * a function's name using the name of the variable it was assigned to rather
- * than simply reading from the function's 'name' property.... will be forced to
- * read it's 'name' property.
+ * a function's name using the name of the variable or object key it was
+ * assigned to rather than simply reading from the function's 'name' property...
+ * will be forced to read it's 'name' property.
  */
 export function createFunctionWithName(name: string, fn: Function): typeof fn {
   Reflect.defineProperty(fn, 'name', {value: name});
@@ -14,7 +19,7 @@ export function createFunctionWithName(name: string, fn: Function): typeof fn {
 
 /**
  * If provided an object, returns the object. If provided a class (function),
- * returns its .prototype property.
+ * returns its 'prototype' property.
  */
 function getPrototypeOfFunctionOrObject(value: object | Function) {
   if (typeof value === 'function') {
@@ -34,14 +39,14 @@ function isObjectPrototype(proto: any): boolean {
     proto.hasOwnProperty('__defineGetter__') &&
     proto.hasOwnProperty('__defineSetter__') &&
     proto.hasOwnProperty('__lookupGetter__') &&
-    proto.hasOwnProperty('__lookupSetter__') &&
-    proto.hasOwnProperty('__defineGetter__');
+    proto.hasOwnProperty('__lookupSetter__');
 }
 
 
 /**
  * Provided an object or class, returns the last object in its prototype chain
- * before the root prototype (re: Object.prototype).
+ * before the root prototype (re: Object.prototype). In other words, the last
+ * meaningful object in its chain.
  */
 function getPenultimatePrototype(protoOrClass: object | Function): object {
   const proto = getPrototypeOfFunctionOrObject(protoOrClass);
@@ -110,4 +115,50 @@ export function withPrototypeExtension(baseProtoOrClass: object | Function, exte
   if (lastProtoBeforeCyclic) {
     Reflect.setPrototypeOf(lastProtoBeforeCyclic, base);
   }
+}
+
+
+export function relativeRate(a: number, b: number): string {
+  if (a === b) {
+    return 'equal';
+  }
+
+  const descriptor = b > a ? 'faster' : 'slower';
+  const rate = b > a ? b / a : a / b;
+
+  if (rate === 1) {
+    return 'equal';
+  }
+
+  return `${rate.toFixed(2)}x ${descriptor}`;
+}
+
+
+export interface TestOptions {
+  iterations: number;
+  label: string;
+  baseTime?: number;
+}
+
+
+/**
+ * Used by perf.ts to run performance tests.
+ */
+export function doTest({iterations, label, baseTime}: TestOptions, fn: Function) {
+  const startTime = process.hrtime();
+
+  for (let i = 0; i < iterations; i++) {
+    fn();
+  }
+
+  const {milliseconds} = convertHrtime(process.hrtime(startTime));
+
+  if (baseTime) {
+    const relative = relativeRate(milliseconds, baseTime);
+    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(iterations.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)} (${relative}).\n`);
+  } else {
+    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(iterations.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)}.\n`);
+  }
+
+  return milliseconds;
 }

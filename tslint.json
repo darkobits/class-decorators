@@ -1,6 +1,9 @@
 {
 	"extends": "tslint-xo/space",
 	"rules": {
+		// Enforce consistent vertical alignment of the following:
+		"align": [true, "parameters", "statements", "elements"],
+
 		// Requires using 'Array<T>' style for arrays.
     "array-type": [true, "generic"],
 

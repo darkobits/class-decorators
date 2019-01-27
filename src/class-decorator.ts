@@ -76,7 +76,7 @@ export default function ClassDecoratorFactory(decorator: ClassDecoratorImplement
        * expected.
        *
        * Should you use this in production environments where you're creating
-       * hundreds of thousands of objects in short periods of time?
+       * millions of objects in short periods of time?
        *
        * Probably not.
        *
