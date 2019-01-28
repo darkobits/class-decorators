@@ -1,6 +1,7 @@
 const ALWAYS_IGNORE = [
+  '<rootDir>/src/etc/jest-setup.js',
+  '<rootDir>/src/etc/perf',
   '<rootDir>/dist',
-  '.*jest.*',
   '/node_modules/'
 ];
 
