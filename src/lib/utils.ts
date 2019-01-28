@@ -21,7 +21,7 @@ export function createFunctionWithName(name: string, fn: Function): typeof fn {
  * If provided an object, returns the object. If provided a class (function),
  * returns its 'prototype' property.
  */
-function getPrototypeOfFunctionOrObject(value: object | Function) {
+function getPrototypeOf(value: object | Function) {
   if (typeof value === 'function') {
     return value.prototype;
   }
@@ -31,28 +31,15 @@ function getPrototypeOfFunctionOrObject(value: object | Function) {
 
 
 /**
- * Returns true if the provided object is the root prototype
- * (re: Object.prototype).
- */
-function isObjectPrototype(proto: any): boolean {
-  return typeof proto === 'object' &&
-    proto.hasOwnProperty('__defineGetter__') &&
-    proto.hasOwnProperty('__defineSetter__') &&
-    proto.hasOwnProperty('__lookupGetter__') &&
-    proto.hasOwnProperty('__lookupSetter__');
-}
-
-
-/**
  * Provided an object or class, returns the last object in its prototype chain
  * before the root prototype (re: Object.prototype). In other words, the last
  * meaningful object in its chain.
  */
 function getPenultimatePrototype(protoOrClass: object | Function): object {
-  const proto = getPrototypeOfFunctionOrObject(protoOrClass);
+  const proto = getPrototypeOf(protoOrClass);
   const parentProto = Reflect.getPrototypeOf(proto);
 
-  if (isObjectPrototype(parentProto)) {
+  if (parentProto === Object.prototype) {
     return proto;
   }
 
@@ -66,8 +53,8 @@ function getPenultimatePrototype(protoOrClass: object | Function): object {
  * provided.
  */
 function findLastPrototypeBefore(protoOrClass: object | Function, stopAtExclusiveProtoOrClass: object | Function) {
-  const proto = getPrototypeOfFunctionOrObject(protoOrClass);
-  const stopAtExclusiveProto = getPrototypeOfFunctionOrObject(stopAtExclusiveProtoOrClass);
+  const proto = getPrototypeOf(protoOrClass);
+  const stopAtExclusiveProto = getPrototypeOf(stopAtExclusiveProtoOrClass);
 
   if (Reflect.getPrototypeOf(proto) === stopAtExclusiveProto) {
     return proto;
@@ -89,8 +76,8 @@ function findLastPrototypeBefore(protoOrClass: object | Function, stopAtExclusiv
  * including "base", thereby avoiding a cyclic chain.
  */
 export function withPrototypeExtension(baseProtoOrClass: object | Function, extensionProtoOrClass: object | Function, cb: Function) {
-  const base = getPrototypeOfFunctionOrObject(baseProtoOrClass);
-  const extension = getPrototypeOfFunctionOrObject(extensionProtoOrClass);
+  const base = getPrototypeOf(baseProtoOrClass);
+  const extension = getPrototypeOf(extensionProtoOrClass);
 
   // Find the last "meaningful" prototype object in base's chain before the root
   // prototype.
@@ -153,11 +140,13 @@ export function doTest({n, label, baseTime}: TestOptions, fn: Function) {
 
   const {milliseconds} = convertHrtime(process.hrtime(startTime));
 
-  if (baseTime) {
-    const relative = relativeRate(milliseconds, baseTime);
-    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(n.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)} (${relative}).\n`);
-  } else {
-    console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(n.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)}.\n`);
+  if (process.env.NODE_ENV !== 'test') {
+    if (baseTime) {
+      const relative = relativeRate(milliseconds, baseTime);
+      console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(n.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)} (${relative}).\n`);
+    } else {
+      console.log(`Test: ${chalk.green.bold(label)}\n  N:\t${chalk.yellow(n.toLocaleString())}\n  Time:\t${chalk.yellow(`${milliseconds.toFixed(2)}ms`)}.\n`);
+    }
   }
 
   return milliseconds;
