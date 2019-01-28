@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.1.6"></a>
+## [4.1.6](https://github.com/darkobits/class-decorator/compare/v4.1.5...v4.1.6) (2019-01-28)
+
+
+### Bug Fixes
+
+* Ensure prototypes of undecorated subclasses are visible to decorated constructors. ([a9f8cb7](https://github.com/darkobits/class-decorator/commit/a9f8cb7))
+
+
+
 <a name="4.1.5"></a>
 ## [4.1.5](https://github.com/darkobits/class-decorators/compare/v4.1.4...v4.1.5) (2019-01-28)
 
