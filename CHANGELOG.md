@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.1.5"></a>
+## [4.1.5](https://github.com/darkobits/class-decorators/compare/v4.1.4...v4.1.5) (2019-01-28)
+
+
+### Bug Fixes
+
+* Relocate all non-production code to own folder. ([9cf9f6d](https://github.com/darkobits/class-decorators/commit/9cf9f6d))
+
+
+
 <a name="4.1.4"></a>
 ## [4.1.4](https://github.com/darkobits/class-decorators/compare/v4.1.3...v4.1.4) (2019-01-27)
 
