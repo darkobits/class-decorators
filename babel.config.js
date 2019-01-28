@@ -14,8 +14,8 @@ module.exports = {
     }],
     '@babel/plugin-proposal-class-properties',
     '@babel/plugin-proposal-optional-catch-binding',
-    ['module-resolver', {
-      cwd: 'babelrc',
+    ['babel-plugin-module-resolver', {
+      cwd: 'packagejson',
       root: ['./src'],
       extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
     }]

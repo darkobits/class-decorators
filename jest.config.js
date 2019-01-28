@@ -11,6 +11,7 @@ module.exports = {
   testPathIgnorePatterns: ALWAYS_IGNORE,
   coveragePathIgnorePatterns: ALWAYS_IGNORE,
   moduleFileExtensions: EXTENSIONS,
+  setupFilesAfterEnv: ['<rootDir>/src/etc/jest-setup.js'],
   transform: {
     [`^.+\\.(${EXTENSIONS.join('|')})$`]: 'babel-jest'
   },
