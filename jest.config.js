@@ -1,5 +1,6 @@
 const ALWAYS_IGNORE = [
   '<rootDir>/dist',
+  '.*jest.*',
   '/node_modules/'
 ];
 

@@ -52,7 +52,7 @@ module.exports = () => {
 
   const perf = {
     description: 'Run performance benchmarks.',
-    script: 'babel-node --extensions=".ts" src/etc/perf.ts'
+    script: 'babel-node --extensions=".ts" src/etc/perf'
   };
 
   return {

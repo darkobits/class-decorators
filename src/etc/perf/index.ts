@@ -1,5 +1,5 @@
-import {doTest} from 'lib/utils';
-import ClassDecorator from '../class-decorator';
+import {doTest} from 'etc/perf/utils';
+import ClassDecorator from '../../class-decorator';
 
 
 // Use an N of 1 million for each test.
