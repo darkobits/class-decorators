@@ -32,6 +32,11 @@ export default function ClassDecoratorFactory(decorator: ClassDecoratorImplement
 
     // Ensures 'this.constructor.name' works as expected.
     const ProxyConstructor = createFunctionWithName(Ctor.name, function (...args: Array<any>): any {
+      // Get the prototype of the last constructor in the chain so that when we
+      // extend Ctor's prototype chain (below) we capture any prototypes of
+      // subclasses.
+      const BasePrototype = this.constructor.prototype;
+
       const options = Object.create(null); // tslint:disable-line no-null-keyword
 
       options.args = args;
@@ -91,7 +96,7 @@ export default function ClassDecoratorFactory(decorator: ClassDecoratorImplement
        * invoking the original constructor.
        */
       options.constructor = (...argsFromDecoratedCtor: Array<any>) => {
-        withPrototypeExtension(Ctor, ProxyConstructor, () => {
+        withPrototypeExtension(Ctor, BasePrototype, () => {
           Object.assign(this, Reflect.construct(Ctor, argsFromDecoratedCtor));
         });
       };
@@ -99,11 +104,9 @@ export default function ClassDecoratorFactory(decorator: ClassDecoratorImplement
       Reflect.apply(decoratedCtor, this, [options]);
     });
 
-    // Ensures proper delegation of explicitly-set prototype properties.
-    ProxyConstructor.prototype = Object.create(Ctor.prototype);
-
-    // Ensures instanceof checks pass as expected.
-    ProxyConstructor.prototype.constructor = Ctor;
+    // Ensures proper delegation of prototype properties and ensures instanceof
+    // checks pass as expected.
+    ProxyConstructor.prototype = Ctor.prototype;
 
     // Ensures static property delegation works as expected.
     Reflect.setPrototypeOf(ProxyConstructor, Ctor);

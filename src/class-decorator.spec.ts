@@ -7,6 +7,7 @@ const INHERITED_PROPERTY = 'INHERITED_PROPERTY';
 const OWN_PROPERTY = 'OWN_PROPERTY';
 const PROTO_PROPERTY = 'PROTO_PROPERTY';
 const DECORATOR_OWN_PROPERTY = 'DECORATOR_OWN_PROPERTY';
+const CHILD_PROTO_PROPERTY = 'CHILD_PROTO_PROPERTY';
 
 
 // ----- Test Decorators -------------------------------------------------------
@@ -29,7 +30,7 @@ const ConstructorDecorator = ClassDecorator(() => {
 
 // ----- Test Classes ----------------------------------------------------------
 
-class Parent { // tslint:disable-line no-unnecessary-class
+class GrandParent { // tslint:disable-line no-unnecessary-class
   [index: string]: any;
 
   static STATIC_PROPERTY_VIA_DECORATOR: any;
@@ -39,7 +40,13 @@ class Parent { // tslint:disable-line no-unnecessary-class
     // property set via the decorator on Child is visible in Parent's
     // constructor.
     if (!this[PROTO_PROPERTY] || this[PROTO_PROPERTY] !== PROTO_PROPERTY) {
-      throw new Error('Parent cannot view protoype property set on Child.');
+      throw new Error('[GrandParent] Cannot view protoype property set on Parent.');
+    }
+
+    // This test ensures that we correctly extend prototype chains to include
+    // classes "below" the decorator target.
+    if (!this[CHILD_PROTO_PROPERTY] || this[CHILD_PROTO_PROPERTY] !== CHILD_PROTO_PROPERTY) {
+      throw new Error('[GrandParent] Cannot view prototype property set on Child.');
     }
 
     this[INHERITED_PROPERTY] = INHERITED_PROPERTY;
@@ -49,7 +56,7 @@ class Parent { // tslint:disable-line no-unnecessary-class
 @StaticPropertyDecorator
 @ProtoDecorator
 @ConstructorDecorator
-class Child extends Parent {
+class Parent extends GrandParent {
   static [STATIC_PROPERTY] = STATIC_PROPERTY;
 
   constructor() {
@@ -57,6 +64,16 @@ class Child extends Parent {
     this[OWN_PROPERTY] = OWN_PROPERTY;
   }
 }
+
+
+class Child extends Parent {
+  childMethod() {
+    // Empty block.
+  }
+}
+
+Child.prototype[CHILD_PROTO_PROPERTY] = CHILD_PROTO_PROPERTY;
+
 
 
 describe('ClassDecorator', () => {
