@@ -5,12 +5,11 @@ install:
   - npm install
 
 script:
-  - npm test -- --coverage
-  - npm run build
+  - npx nps test.coverage
+  - npx nps build
 
 after_success:
-  - npm install codacy-coverage
-  - $(npm bin)/codacy-coverage -v < ./coverage/lcov.info
+  - npx codacy-coverage -v < ./coverage/lcov.info
 
 cache:
   directories:

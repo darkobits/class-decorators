@@ -9,16 +9,10 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "clean": "del dist",
-    "check:styles": "tslint --project tsconfig.json --format codeFrame",
-    "check:types": "tsc --emitDeclarationOnly && del **/*.spec.d.ts",
-    "test": "jest",
-    "prebuild": "run-p clean check:*",
-    "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline",
-    "prebump": "run-p test build",
-    "bump": "standard-version",
-    "bump:beta": "npm run prebump && standard-version --prerelease=beta",
-    "perf": "babel-node --extensions='.ts' src/etc/perf.ts"
+    "prepare": "nps prepare",
+    "test": "nps test",
+    "build": "nps build",
+    "perf": "nps perf"
   },
   "peerDependencies": {
     "@babel/plugin-proposal-decorators": "^7.0.0"
@@ -47,7 +41,8 @@
     "del-cli": "^1.1.0",
     "jest": "^24.0.0",
     "npm-run-all": "^4.1.5",
-    "ramda": "^0.26.1",
+    "nps": "^5.9.3",
+    "nps-utils": "^1.7.0",
     "standard-version": "^4.4.0",
     "tslint": "^5.12.1",
     "tslint-xo": "^0.13.0",
