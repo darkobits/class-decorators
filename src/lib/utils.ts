@@ -46,15 +46,26 @@ function getPenultimatePrototype(protoOrClass: object | Function): object {
 /**
  * Provided an object or class, traverses up its prototype chain until we reach
  * an object whose prototype is equal to the "stop at exclusive" object or class
- * provided.
+ * provided, then returns the prototype that points to it.
+ *
+ * If we reach Object.prototype without encountering the 'stop at' prototype,
+ * undefined is returned.
  */
 function findLastPrototypeBefore(protoOrClass: object | Function, stopAtExclusiveProtoOrClass: object | Function): object | void {
   const proto = getPrototypeOf(protoOrClass);
+
+  if (proto === Object.prototype) {
+    return;
+  }
+
+  const parentProto = Reflect.getPrototypeOf(proto);
   const stopAtExclusiveProto = getPrototypeOf(stopAtExclusiveProtoOrClass);
 
-  if (Reflect.getPrototypeOf(proto) === stopAtExclusiveProto) {
+  if (parentProto === stopAtExclusiveProto) {
     return proto;
   }
+
+  return findLastPrototypeBefore(parentProto, stopAtExclusiveProto);
 }
 
 
