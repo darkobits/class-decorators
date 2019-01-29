@@ -97,7 +97,12 @@ export default function ClassDecoratorFactory(decorator: ClassDecoratorImplement
        */
       options.constructor = (...argsFromDecoratedCtor: Array<any>) => {
         withPrototypeExtension(Ctor, BasePrototype, () => {
-          Object.assign(this, Reflect.construct(Ctor, argsFromDecoratedCtor));
+          const orphanInstance = Reflect.construct(Ctor, argsFromDecoratedCtor);
+          Object.assign(this, orphanInstance);
+
+          if (Ctor.prototype !== BasePrototype) {
+            Reflect.setPrototypeOf(orphanInstance, BasePrototype);
+          }
         });
       };
 
