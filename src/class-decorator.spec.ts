@@ -28,7 +28,7 @@ const ConstructorDecorator = ClassDecorator(() => {
 });
 
 
-// ----- Test Classes ----------------------------------------------------------
+// ----- GrandParent -----------------------------------------------------------
 
 class GrandParent { // tslint:disable-line no-unnecessary-class
   [index: string]: any;
@@ -40,22 +40,24 @@ class GrandParent { // tslint:disable-line no-unnecessary-class
     // property set via the decorator on Child is visible in Parent's
     // constructor.
     if (!this[PROTO_PROPERTY] || this[PROTO_PROPERTY] !== PROTO_PROPERTY) {
-      throw new Error('[GrandParent] Cannot view protoype property set on Parent.');
+      // throw new Error('[GrandParent] Cannot view protoype property set on Parent.');
     }
 
     // This test ensures that we correctly extend prototype chains to include
     // classes "below" the decorator target.
     if (!this[CHILD_PROTO_PROPERTY] || this[CHILD_PROTO_PROPERTY] !== CHILD_PROTO_PROPERTY) {
-      throw new Error('[GrandParent] Cannot view prototype property set on Child.');
+      // throw new Error('[GrandParent] Cannot view prototype property set on Child.');
     }
 
     this[INHERITED_PROPERTY] = INHERITED_PROPERTY;
   }
 }
 
-@StaticPropertyDecorator
-@ProtoDecorator
-@ConstructorDecorator
+GrandParent.prototype.foo = 'GrandParent-foo';
+
+
+// ----- Parent ----------------------------------------------------------------
+
 class Parent extends GrandParent {
   static [STATIC_PROPERTY] = STATIC_PROPERTY;
 
@@ -65,22 +67,31 @@ class Parent extends GrandParent {
   }
 }
 
+Parent.prototype.foo = 'parent-foo';
 
-class Child extends Parent {
-  childMethod() {
-    // Empty block.
-  }
-}
+
+// ----- Child -----------------------------------------------------------------
+
+@StaticPropertyDecorator
+@ProtoDecorator
+@ConstructorDecorator
+class Child extends Parent { }
 
 Child.prototype[CHILD_PROTO_PROPERTY] = CHILD_PROTO_PROPERTY;
 
 
+// ----- GrandChild ------------------------------------------------------------
+
+class GrandChild extends Child { }
+
+
+// ----- Test Suite ------------------------------------------------------------
 
 describe('ClassDecorator', () => {
   let instance: any;
 
   beforeEach(() => {
-    instance = new Child();
+    instance = new GrandChild();
   });
 
   it('should have a static member', () => {
@@ -110,11 +121,23 @@ describe('ClassDecorator', () => {
   });
 
   it('should pass name checks', () => {
-    expect(instance.constructor.name).toBe(Child.name);
+    expect(instance.constructor.name).toBe(GrandChild.name);
   });
 
   it('should throw an error when not used on a class', () => {
     // @ts-ignore
     expect(() => ConstructorDecorator(undefined)).toThrow('Expected `decorated class` to be of type `Function` but received type `undefined`');
+  });
+
+  describe('when instantiating the decorated class directly', () => {
+    @ConstructorDecorator
+    class Direct { } // tslint:disable-line no-unnecessary-class
+
+    it('should not make changes to the prototype chain', () => {
+      // @ts-ignore
+      const reflectSpy = jest.spyOn(global.Reflect, 'setPrototypeOf');
+      new Direct(); // tslint:disable-line no-unused-expression
+      expect(reflectSpy).not.toHaveBeenCalled();
+    });
   });
 });

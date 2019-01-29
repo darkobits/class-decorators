@@ -2,8 +2,8 @@ import {doTest} from 'etc/perf/utils';
 import ClassDecorator from '../../class-decorator';
 
 
-// Use an N of 1 million for each test.
-const n = 1000000;
+// Use an N of 100,000 for each test.
+const n = 100000;
 
 
 // ----- Base Case -------------------------------------------------------------
@@ -14,7 +14,7 @@ class UndecoratedClass {
   }
 }
 
-const baseTime = doTest({n, label: '[ ] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original'}, () => {
+const baseTime = doTest({n, label: '[ ] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original [ ] Decorated Class is Subclassed'}, () => {
   return new UndecoratedClass();
 });
 
@@ -32,7 +32,7 @@ class SimpleDecoratedClass {
   }
 }
 
-doTest({n, label: '[X] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original', baseTime}, () => {
+doTest({n, label: '[X] Decorated [ ] Uses Proxy Constructor [ ] Proxy Invokes Original [ ] Decorated Class is Subclassed', baseTime}, () => {
   return new SimpleDecoratedClass();
 });
 
@@ -52,7 +52,7 @@ class ProxyDecoratedClass {
   }
 }
 
-doTest({n, label: '[X] Decorated [X] Uses Proxy Constructor [ ] Proxy Invokes Original', baseTime}, () => {
+doTest({n, label: '[X] Decorated [X] Uses Proxy Constructor [ ] Proxy Invokes Original [ ] Decorated Class is Subclassed', baseTime}, () => {
   return new ProxyDecoratedClass();
 });
 
@@ -72,6 +72,14 @@ class ProxyInvokingDecoratedClass {
   }
 }
 
-doTest({n, label: '[X] Decorated [X] Uses Proxy Constructor [X] Proxy Invokes Original', baseTime}, () => {
+doTest({n, label: '[X] Decorated [X] Uses Proxy Constructor [X] Proxy Invokes Original [ ] Decorated Class is Subclassed', baseTime}, () => {
   return new ProxyInvokingDecoratedClass();
+});
+
+// ----- Proxy Constructor That Invokes Original Constructor (Subclassed) ------
+
+class SubclassOfDecorated extends ProxyInvokingDecoratedClass { }
+
+doTest({n, label: '[X] Decorated [X] Uses Proxy Constructor [X] Proxy Invokes Original [X] Decorated Class is Subclassed', baseTime}, () => {
+  return new SubclassOfDecorated();
 });
