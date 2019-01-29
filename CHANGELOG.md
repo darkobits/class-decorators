@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.1.8"></a>
+## [4.1.8](https://github.com/darkobits/class-decorator/compare/v4.1.7...v4.1.8) (2019-01-29)
+
+
+### Bug Fixes
+
+* Append to beginning of prototype chains. ([93d4a82](https://github.com/darkobits/class-decorator/commit/93d4a82))
+
+
+
 <a name="4.1.7"></a>
 ## [4.1.7](https://github.com/darkobits/class-decorator/compare/v4.1.6...v4.1.7) (2019-01-28)
 
