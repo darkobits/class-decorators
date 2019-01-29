@@ -1,7 +1,7 @@
 {
   "name": "@darkobits/class-decorators",
   "description": "Decorator factories for classes and class methods.",
-  "version": "4.1.10",
+  "version": "4.1.11",
   "license": "WTFPL",
   "author": "darkobits",
   "files": [

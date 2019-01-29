@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.1.11"></a>
+## [4.1.11](https://github.com/darkobits/class-decorator/compare/v4.1.10...v4.1.11) (2019-01-29)
+
+
+### Bug Fixes
+
+* Instance delegates to parent of orphaned instance. ([db6c682](https://github.com/darkobits/class-decorator/commit/db6c682))
+
+
+
 <a name="4.1.10"></a>
 ## [4.1.10](https://github.com/darkobits/class-decorator/compare/v4.1.9...v4.1.10) (2019-01-29)
 
