@@ -30,6 +30,9 @@ const ConstructorDecorator = ClassDecorator(() => {
 
 // ----- GrandParent -----------------------------------------------------------
 
+@StaticPropertyDecorator
+@ProtoDecorator
+@ConstructorDecorator
 class GrandParent { // tslint:disable-line no-unnecessary-class
   [index: string]: any;
 
@@ -51,6 +54,10 @@ class GrandParent { // tslint:disable-line no-unnecessary-class
 
     this[INHERITED_PROPERTY] = INHERITED_PROPERTY;
   }
+
+  get asdf() {
+    return 'bar';
+  }
 }
 
 GrandParent.prototype.foo = 'GrandParent-foo';
@@ -58,12 +65,29 @@ GrandParent.prototype.foo = 'GrandParent-foo';
 
 // ----- Parent ----------------------------------------------------------------
 
+@StaticPropertyDecorator
+@ProtoDecorator
+@ConstructorDecorator
 class Parent extends GrandParent {
   static [STATIC_PROPERTY] = STATIC_PROPERTY;
+
+  private _foo: any;
 
   constructor() {
     super();
     this[OWN_PROPERTY] = OWN_PROPERTY;
+  }
+
+  get foo() {
+    return this._foo;
+  }
+
+  set foo(newValue) {
+    this._foo = newValue;
+  }
+
+  parentMethod() {
+    return this.asdf;
   }
 }
 
@@ -72,9 +96,6 @@ Parent.prototype.foo = 'parent-foo';
 
 // ----- Child -----------------------------------------------------------------
 
-@StaticPropertyDecorator
-@ProtoDecorator
-@ConstructorDecorator
 class Child extends Parent { }
 
 Child.prototype[CHILD_PROTO_PROPERTY] = CHILD_PROTO_PROPERTY;
@@ -92,6 +113,12 @@ describe('ClassDecorator', () => {
 
   beforeEach(() => {
     instance = new GrandChild();
+  });
+
+  it('getters and setters', () => {
+    instance.foo = 'bar';
+    expect(instance.foo).toBe('bar');
+    expect(instance._foo).toBe('bar');
   });
 
   it('should have a static member', () => {

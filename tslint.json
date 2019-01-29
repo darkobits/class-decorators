@@ -32,6 +32,14 @@
 
 		// Allow variable names in lowerCamelCase, PascalCase, and UPPER_CASE.
 		// Additionally, ban the use of reserved TypeScript keywords.
-		"variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"]
+		"variable-name": {
+			"severity": "error",
+			"options": [
+				"ban-keywords",
+				"check-format",
+				"allow-pascal-case",
+				"allow-leading-underscore"
+      ]
+    }
 	}
 }

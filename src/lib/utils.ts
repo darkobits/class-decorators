@@ -74,22 +74,10 @@ export function findLastPrototypeBefore(protoOrClass: object | Function, stopAtE
  * which delegates to the same object as the source object.
  */
 export function clonePrototype(from: object, to: object = Object.create(Reflect.getPrototypeOf(from))) {
-  const properties = Object.getOwnPropertyNames(from);
+  const propertyDescriptors = Object.getOwnPropertyDescriptors(from);
 
-  properties.forEach(propertyName => {
-    const fromValue = Reflect.getOwnPropertyDescriptor(from, propertyName);
-    let toValue: any;
-
-    if (fromValue) {
-      toValue = fromValue.value;
-    }
-
-    Reflect.defineProperty(to, propertyName, {
-      value: toValue,
-      writable: true,
-      enumerable: false,
-      configurable: true
-    });
+  Object.entries(propertyDescriptors).forEach(([name, propertyDescriptor]) => {
+    Reflect.defineProperty(to, name, propertyDescriptor);
   });
 
   return to;
