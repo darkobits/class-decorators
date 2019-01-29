@@ -54,13 +54,8 @@ class GrandParent { // tslint:disable-line no-unnecessary-class
 
     this[INHERITED_PROPERTY] = INHERITED_PROPERTY;
   }
-
-  get asdf() {
-    return 'bar';
-  }
 }
 
-GrandParent.prototype.foo = 'GrandParent-foo';
 
 
 // ----- Parent ----------------------------------------------------------------
@@ -91,7 +86,6 @@ class Parent extends GrandParent {
   }
 }
 
-Parent.prototype.foo = 'parent-foo';
 
 
 // ----- Child -----------------------------------------------------------------

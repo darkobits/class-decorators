@@ -102,6 +102,7 @@ export default function ClassDecoratorFactory(decorator: ClassDecoratorImplement
 
           if (Ctor.prototype !== BasePrototype) {
             Reflect.setPrototypeOf(orphanInstance, BasePrototype);
+            Reflect.setPrototypeOf(this, Reflect.getPrototypeOf(orphanInstance));
           }
         });
       };
